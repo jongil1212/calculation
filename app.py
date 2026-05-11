@@ -234,6 +234,11 @@ def grade_q2_1_calc(answer: str):
     """
     text = normalize_korean_text(answer)
 
+    blank_feedback = "계산 결과를 적지 않았습니다. 내가 생각하는 올바른 계산을 작성해주세요."
+
+    if text == "":
+        return 0.0, blank_feedback
+
     correct_patterns = [
         r"5\+\(-?6\)/2=2",
         r"5\+-6/2=2",
@@ -242,7 +247,6 @@ def grade_q2_1_calc(answer: str):
         r"답은?2",
     ]
 
-    # 오답 결과 차단
     wrong_patterns = [
         r"=-?1/2",
         r"=-?0\.5",
@@ -251,12 +255,12 @@ def grade_q2_1_calc(answer: str):
     ]
 
     if contains_any(text, wrong_patterns):
-        return 0.0, "계산 결과가 올바르지 않습니다."
+        return 0.0, "계산 결과를 다시 확인해봅시다."
 
-    if contains_any(text, correct_patterns) or "2" in text:
-        return 1.0, "올바른 계산 결과 2를 제시했습니다."
+    if contains_any(text, correct_patterns):
+        return 1.0, "올바른 계산 결과를 제시했습니다."
 
-    return 0.0, "올바른 계산 결과 2가 명확하지 않습니다."
+    return 0.0, blank_feedback
 
 
 def grade_q2_1_reason(answer: str):
@@ -295,16 +299,22 @@ def grade_q2_2_calc(answer: str):
     """
     text = normalize_korean_text(answer)
 
+    blank_feedback = "계산 결과를 적지 않았습니다. 내가 생각하는 올바른 계산을 작성해주세요."
+
+    if text == "":
+        return 0.0, blank_feedback
+
     if "-24" in text:
-        return 1.0, "올바른 계산 결과 -24를 제시했습니다."
+        return 1.0, "올바른 계산 결과를 제시했습니다."
 
     wrong_patterns = [
         r"-32", r"-36", r"32", r"36", r"-28"
     ]
-    if contains_any(text, wrong_patterns):
-        return 0.0, "계산 결과가 올바르지 않습니다."
 
-    return 0.0, "올바른 계산 결과 -24가 명확하지 않습니다."
+    if contains_any(text, wrong_patterns):
+        return 0.0, "계산 결과를 다시 확인해봅시다."
+
+    return 0.0, blank_feedback
 
 
 def grade_q2_2_reason(answer: str):
