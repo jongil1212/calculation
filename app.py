@@ -6,6 +6,8 @@ from fractions import Fraction
 # 기본 유틸 함수
 # -----------------------------
 
+BLANK_FEEDBACK = "답안을 적지 않았습니다. 답안을 작성해주세요."
+
 def normalize_text(text: str) -> str:
     """답안 비교를 위한 기본 정규화"""
     if text is None:
@@ -94,6 +96,8 @@ def grade_q1_1(answer: str):
     2개 정확하면 0.5점
     정답 3개를 모두 썼지만 오답이 1~2개 추가된 경우 0.5점
     """
+    if answer.strip() == "":
+        return 0.0, BLANK_FEEDBACK    
     values, raw = extract_number_values(answer)
 
     correct = [Fraction(-4, 1), Fraction(-3, 5), Fraction(-2, 1)]
@@ -123,6 +127,8 @@ def grade_q1_2(answer: str):
     2개 정확하면 0.5점
     정답 3개를 모두 썼지만 오답이 1~2개 추가된 경우 0.5점
     """
+    if answer.strip() == "":
+        return 0.0, BLANK_FEEDBACK    
     values, raw = extract_number_values(answer)
 
     correct = [Fraction(1, 2), Fraction(-3, 5), Fraction(18, 5)]
@@ -153,6 +159,8 @@ def grade_q1_3(answer: str):
     정답: +2, -6/3 또는 +2, -2
     답만 쓰면 인정
     """
+    if answer.strip() == "":
+        return 0.0, BLANK_FEEDBACK
     values, raw = extract_number_values(answer)
 
     required = {Fraction(2, 1), Fraction(-2, 1)}
@@ -175,6 +183,8 @@ def grade_q1_4(answer: str):
     부등호 사용 + 순서 정확: 1점
     순서 정확하나 쉼표 등 사용: 0.5점
     """
+    if answer.strip() == "":
+        return 0.0, BLANK_FEEDBACK    
     text = normalize_text(answer)
     values, raw = extract_number_values(answer)
 
@@ -374,6 +384,9 @@ def grade_q2(answer_1: str, answer_2: str):
 # -----------------------------
 
 def grade_q3_person(answer: str):
+    if answer.strip() == "":
+        return 0.0, BLANK_FEEDBACK
+
     text = normalize_korean_text(answer)
 
     if "건우" in text:
@@ -386,6 +399,8 @@ def grade_q3_power_sign(answer: str):
     이유 설명: -2^4 = -16 이므로 음수
     (-2)^4 = 16으로 해석한 답안은 오답 처리
     """
+    if answer.strip() == "":
+        return 0.0, BLANK_FEEDBACK
     text = normalize_korean_text(answer)
 
     # 강한 오개념 차단
@@ -419,6 +434,8 @@ def grade_q3_product_sign(answer: str):
     음수의 개수와 곱의 부호 설명
     '음수가 2개이기 때문'이라는 의미만 있어도 인정
     """
+    if answer.strip() == "":
+        return 0.0, BLANK_FEEDBACK
     text = normalize_korean_text(answer)
 
     has_two_negatives = contains_any(text, [
@@ -458,42 +475,44 @@ def grade_q3_product_sign(answer: str):
     return 0.0, "곱셈에서 음수의 개수와 부호 사이의 관계를 추가적으로 작성해줘야 좋은 답안이 됩니다."
 
 
-def grade_q3(answer: str):
-    """
-    문제 3 채점
-    학생에게는 피드백을 두 항목으로 표시:
-    1. 옳은 사람 판단(1점)
-    2. 이유 설명(2점)
-    """
+def grade_q3_split(q3_person: str, q3_reason: str):
     scores = {}
     feedback = {}
 
-    # 1점: 옳은 사람 판단
-    person_score, person_feedback = grade_q3_person(answer)
-
-    # 2점: 이유 설명
-    power_score, power_feedback = grade_q3_power_sign(answer)
-    product_score, product_feedback = grade_q3_product_sign(answer)
-
-    reason_score = power_score + product_score
-
-    reason_feedback_parts = []
-
-    if power_score == 1.0:
-        reason_feedback_parts.append("-2^4의 부호를 바르게 판단했습니다.")
+    if q3_person.strip() == "":
+        person_score = 0.0
+        person_feedback = BLANK_FEEDBACK
     else:
-        reason_feedback_parts.append("-2^4가 어떤 부호인지 다시 생각해봅시다.")
+        person_score, person_feedback = grade_q3_person(q3_person)
 
-    if product_score == 1.0:
-        reason_feedback_parts.append("음수의 개수와 곱의 부호 관계를 바르게 설명했습니다.")
+    if q3_reason.strip() == "":
+        reason_score = 0.0
+        reason_feedback = BLANK_FEEDBACK
     else:
-        reason_feedback_parts.append("곱셈에서 음수의 개수와 부호 사이의 관계를 추가적으로 작성해줘야 좋은 답안이 됩니다.")
+        power_score, power_feedback = grade_q3_power_sign(q3_reason)
+        product_score, product_feedback = grade_q3_product_sign(q3_reason)
+
+        reason_score = power_score + product_score
+
+        reason_feedback_parts = []
+
+        if power_score == 1.0:
+            reason_feedback_parts.append("-2^4의 부호를 바르게 판단했습니다.")
+        else:
+            reason_feedback_parts.append("-2^4가 어떤 부호인지 다시 생각해봅시다.")
+
+        if product_score == 1.0:
+            reason_feedback_parts.append("음수의 개수와 곱의 부호 관계를 바르게 설명했습니다.")
+        else:
+            reason_feedback_parts.append("곱셈에서 음수의 개수와 부호 사이의 관계를 추가적으로 작성해줘야 좋은 답안이 됩니다.")
+
+        reason_feedback = " ".join(reason_feedback_parts)
 
     scores["옳은 사람 판단(1점)"] = person_score
     feedback["옳은 사람 판단(1점)"] = person_feedback
 
     scores["이유 설명(2점)"] = reason_score
-    feedback["이유 설명(2점)"] = " ".join(reason_feedback_parts)
+    feedback["이유 설명(2점)"] = reason_feedback
 
     return sum(scores.values()), scores, feedback
 
@@ -570,6 +589,9 @@ def grade_q4_final_choice(jinho_ans, haein_ans, seunghye_ans, minseop_ans, final
     정답 점수 기준 해인 선택: 1점
     계산 오류가 있어도 자신이 제시한 네 점수 중 가장 작은 학생을 선택: 0.5점
     """
+    if final_answer.strip() == "":
+        return 0.0, BLANK_FEEDBACK
+
     final_text = normalize_korean_text(final_answer)
 
     correct_values = {
@@ -621,13 +643,20 @@ def grade_q4(jinho_ans, haein_ans, seunghye_ans, minseop_ans, final_answer):
     }
 
     for student, ans in answers.items():
-        s, f = grade_expression(ans, student)
-        scores[f"4 {student} 식"] = s
-        feedback[f"4 {student} 식"] = f
+        if ans.strip() == "":
+            scores[f"4 {student} 식"] = 0.0
+            feedback[f"4 {student} 식"] = BLANK_FEEDBACK
 
-        s, f = grade_final_score(ans, correct_scores[student], student)
-        scores[f"4 {student} 최종점수"] = s
-        feedback[f"4 {student} 최종점수"] = f
+            scores[f"4 {student} 최종점수"] = 0.0
+            feedback[f"4 {student} 최종점수"] = BLANK_FEEDBACK
+        else:
+            s, f = grade_expression(ans, student)
+            scores[f"4 {student} 식"] = s
+            feedback[f"4 {student} 식"] = f
+
+            s, f = grade_final_score(ans, correct_scores[student], student)
+            scores[f"4 {student} 최종점수"] = s
+            feedback[f"4 {student} 최종점수"] = f
 
     s, f = grade_q4_final_choice(
         jinho_ans,
@@ -1263,7 +1292,10 @@ with tab3:
                 + st.session_state.q3_reason
             )
 
-            q3_total, q3_scores, q3_feedback = grade_q3(q3_combined)
+            q3_total, q3_scores, q3_feedback = grade_q3_split(
+                st.session_state.q3_person,
+                st.session_state.q3_reason
+            )
 
             st.success(f"문제 3 점수: {q3_total} / 3점")
 
