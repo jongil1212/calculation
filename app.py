@@ -1219,65 +1219,17 @@ with tab3:
 with tab4:
     st.subheader("문제 4. 사다리 계산 게임")
 
-    st.markdown(
-        """
-        진호, 해인, 승혜, 민섭이는 사다리 계산 게임을 했습니다.  
-        가장 작은 수가 나오는 학생이 간식을 사기로 했습니다.  
-        각 학생의 계산 식과 최종 점수를 구하고, 간식을 사게 될 학생을 판단하시오. [9점]
-        """
-    )
+    with st.container(border=True):
+        st.markdown(
+            """
+            진호, 해인, 승혜, 민섭이는 사다리 계산 게임을 했습니다.  
+            가장 작은 수가 나오는 학생이 간식을 사기로 했습니다.  
+            각 학생의 계산 식과 최종 점수를 구하고, 간식을 사게 될 학생을 판단하시오. [9점]
+            """
+        )
 
-    st.info(
-        """
-        시작 수  
-        진호: 2 / 해인: -1 / 승혜: 1 / 민섭: -3
-
-        이동 경로에 맞게 곱셈, 나눗셈, 덧셈, 뺄셈을 적용하여 계산합니다.
-        """
-    )
-
-    st.markdown("#### 진호")
-    st.text_area(
-        "진호의 식과 최종 점수",
-        key="q4_jinho",
-        height=120,
-    )
-    show_answer_preview("q4_jinho")
-    general_math_input("q4_jinho")
-
-    st.markdown("#### 해인")
-    st.text_area(
-        "해인의 식과 최종 점수",
-        key="q4_haein",
-        height=120,
-    )
-    show_answer_preview("q4_haein")
-    general_math_input("q4_haein")
-
-    st.markdown("#### 승혜")
-    st.text_area(
-        "승혜의 식과 최종 점수",
-        key="q4_seunghye",
-        height=120,
-    )
-    show_answer_preview("q4_seunghye")
-    general_math_input("q4_seunghye")
-
-    st.markdown("#### 민섭")
-    st.text_area(
-        "민섭의 식과 최종 점수",
-        key="q4_minseop",
-        height=120,
-    )
-    show_answer_preview("q4_minseop")
-    general_math_input("q4_minseop")
-
-    st.markdown("#### 간식을 사게 될 학생")
-    st.text_input(
-        "최종 판단 입력",
-        key="q4_final",
-    )
-
+        st.image("problem4.png", use_container_width=True)
+        
 # -----------------------------
 # 복습할 내용
 # -----------------------------
