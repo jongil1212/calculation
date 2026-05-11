@@ -959,117 +959,80 @@ with tab1:
     # 문제 제시 상자
     st.markdown(
         """
-        <div style="
-            background-color: #EAF3FF;
-            border-radius: 10px;
-            padding: 18px 20px;
-            margin: 16px 0 24px 0;
-            border: 1px solid #D6E8FF;
-        ">
-            <p style="font-size: 16px; line-height: 1.7; margin-bottom: 18px;">
-                보기의 숫자들에 대해 질문에 답하시오.
-            </p>
+<div style="background-color:#EAF3FF; border-radius:10px; padding:18px 20px; margin:16px 0 24px 0; border:1px solid #D6E8FF;">
+    <p style="font-size:16px; line-height:1.7; margin-bottom:18px;">
+        보기의 숫자들에 대해 질문에 답하시오.
+    </p>
 
-            <style>
-                .number-box {
-                    text-align: center;
-                    font-size: 24px;
-                    line-height: 2.2;
-                    color: #111827;
-                }
-                .frac {
-                    display: inline-block;
-                    vertical-align: middle;
-                    text-align: center;
-                    font-size: 0.95em;
-                    margin: 0 2px;
-                }
-                .frac .top {
-                    display: block;
-                    border-bottom: 1.6px solid #111827;
-                    padding: 0 4px 1px 4px;
-                    line-height: 1.0;
-                }
-                .frac .bottom {
-                    display: block;
-                    padding: 1px 4px 0 4px;
-                    line-height: 1.0;
-                }
-                .num-item {
-                    display: inline-block;
-                    margin: 0 12px;
-                }
-            </style>
+    <div style="text-align:center; font-size:24px; line-height:2.2; color:#111827;">
+        <span style="display:inline-block; margin:0 12px;">−4</span>
+        <span style="display:inline-block; margin:0 12px;">0</span>
 
-            <div class="number-box">
-                <span class="num-item">−4</span>
-                <span class="num-item">0</span>
-                <span class="num-item">
-                    +
-                    <span class="frac">
-                        <span class="top">1</span>
-                        <span class="bottom">2</span>
-                    </span>
-                </span>
-                <span class="num-item">
-                    −
-                    <span class="frac">
-                        <span class="top">3</span>
-                        <span class="bottom">5</span>
-                    </span>
-                </span>
-                <span class="num-item">+2</span>
-                <span class="num-item">3.6</span>
-                <span class="num-item">10</span>
-                <span class="num-item">
-                    −
-                    <span class="frac">
-                        <span class="top">6</span>
-                        <span class="bottom">3</span>
-                    </span>
-                </span>
-            </div>
-        </div>
+        <span style="display:inline-block; margin:0 12px;">
+            +
+            <span style="display:inline-block; vertical-align:middle; text-align:center; font-size:0.95em; margin:0 2px;">
+                <span style="display:block; border-bottom:1.6px solid #111827; padding:0 4px 1px 4px; line-height:1.0;">1</span>
+                <span style="display:block; padding:1px 4px 0 4px; line-height:1.0;">2</span>
+            </span>
+        </span>
+
+        <span style="display:inline-block; margin:0 12px;">
+            −
+            <span style="display:inline-block; vertical-align:middle; text-align:center; font-size:0.95em; margin:0 2px;">
+                <span style="display:block; border-bottom:1.6px solid #111827; padding:0 4px 1px 4px; line-height:1.0;">3</span>
+                <span style="display:block; padding:1px 4px 0 4px; line-height:1.0;">5</span>
+            </span>
+        </span>
+
+        <span style="display:inline-block; margin:0 12px;">+2</span>
+        <span style="display:inline-block; margin:0 12px;">3.6</span>
+        <span style="display:inline-block; margin:0 12px;">10</span>
+
+        <span style="display:inline-block; margin:0 12px;">
+            −
+            <span style="display:inline-block; vertical-align:middle; text-align:center; font-size:0.95em; margin:0 2px;">
+                <span style="display:block; border-bottom:1.6px solid #111827; padding:0 4px 1px 4px; line-height:1.0;">6</span>
+                <span style="display:block; padding:1px 4px 0 4px; line-height:1.0;">3</span>
+            </span>
+        </span>
+    </div>
+</div>
         """,
         unsafe_allow_html=True
     )
 
-    st.markdown("#### (1) 음수를 모두 찾으시오. [1점]")
+    st.markdown("**(1) 음수를 모두 찾으시오. [1점]")
     st.text_input(
         "1-(1) 답안 입력",
         key="q1_1",
         label_visibility="collapsed",
-        placeholder="예: -4, -3/5, -6/3"
     )
     show_answer_preview("q1_1")
     general_math_input("q1_1")
 
-    st.markdown("#### (2) 정수가 아닌 유리수를 모두 찾으시오. [1점]")
+    st.markdown("**(2) 정수가 아닌 유리수를 모두 찾으시오. [1점]")
     st.text_input(
         "1-(2) 답안 입력",
         key="q1_2",
         label_visibility="collapsed",
-        placeholder="예: 1/2, -3/5, 3.6"
     )
     show_answer_preview("q1_2")
     general_math_input("q1_2")
 
-    st.markdown("#### (3) 절댓값이 같은 두 수를 모두 찾으시오. [1점]")
+    st.markdown("**(3) 절댓값이 같은 두 수를 모두 찾으시오. [1점]")
     st.text_input(
         "1-(3) 답안 입력",
         key="q1_3",
         label_visibility="collapsed",
-        placeholder="예: +2, -6/3"
     )
     show_answer_preview("q1_3")
     general_math_input("q1_3")
 
-    st.markdown("#### (4) 부등호를 이용하여 위의 수를 작은 것부터 순서대로 나열하시오. [1점]")
+    st.markdown("**(4) 부등호를 이용하여 위의 수를 작은 것부터 순서대로 나열하시오. [1점]")
     st.text_input(
         "1-(4) 답안 입력",
         key="q1_4",
         label_visibility="collapsed",
-        placeholder="예: -4<-6/3<-3/5<0<1/2<2<3.6<10"
     )
     show_answer_preview("q1_4")
     general_math_input("q1_4")
