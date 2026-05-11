@@ -958,7 +958,7 @@ with tab1:
 
     # 문제 제시 상자
     st.markdown(
-        """
+        r"""
         <div style="
             background-color: #EAF3FF;
             border-radius: 10px;
@@ -966,16 +966,22 @@ with tab1:
             margin: 16px 0 24px 0;
             border: 1px solid #D6E8FF;
         ">
-            <p style="font-size: 16px; line-height: 1.7; margin-bottom: 12px;">
+            <p style="font-size: 16px; line-height: 1.7; margin-bottom: 16px;">
                 보기의 숫자들에 대해 질문에 답하시오.
             </p>
+            <div style="
+                font-size: 22px;
+                text-align: center;
+                line-height: 1.8;
+                margin-top: 8px;
+            ">
+                $$
+                -4,\quad 0,\quad +\frac{1}{2},\quad -\frac{3}{5},\quad +2,\quad 3.6,\quad 10,\quad -\frac{6}{3}
+                $$
+            </div>
         </div>
         """,
         unsafe_allow_html=True
-    )
-
-    st.latex(
-        r"-4,\quad 0,\quad +\frac{1}{2},\quad -\frac{3}{5},\quad +2,\quad 3.6,\quad 10,\quad -\frac{6}{3}"
     )
 
     st.markdown("#### (1) 음수를 모두 찾으시오. [1점]")
