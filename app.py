@@ -622,6 +622,191 @@ for key, value in default_values.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
+# -----------------------------
+# 일반 수식 입력기
+# -----------------------------
+
+def append_to_answer(target_key, value):
+    """선택한 기호나 수식을 답안 입력칸 뒤에 추가"""
+    current = st.session_state.get(target_key, "")
+    st.session_state[target_key] = current + value
+
+
+def backspace_answer(target_key):
+    """답안 입력칸에서 마지막 글자 삭제"""
+    current = st.session_state.get(target_key, "")
+    st.session_state[target_key] = current[:-1]
+
+
+def clear_answer(target_key):
+    """답안 입력칸 전체 삭제"""
+    st.session_state[target_key] = ""
+
+
+def insert_fraction(target_key, numerator_key, denominator_key, negative_key):
+    """분자와 분모를 이용해 분수 입력"""
+    numerator = st.session_state.get(numerator_key, "").strip()
+    denominator = st.session_state.get(denominator_key, "").strip()
+    is_negative = st.session_state.get(negative_key, False)
+
+    if numerator == "" or denominator == "":
+        return
+
+    if is_negative:
+        fraction_text = f"-{numerator}/{denominator}"
+    else:
+        fraction_text = f"{numerator}/{denominator}"
+
+    append_to_answer(target_key, fraction_text)
+
+
+def insert_power(target_key, base_key, exponent_key, negative_key):
+    """밑과 지수를 이용해 거듭제곱 입력"""
+    base = st.session_state.get(base_key, "").strip()
+    exponent = st.session_state.get(exponent_key, "").strip()
+    is_negative = st.session_state.get(negative_key, False)
+
+    if base == "" or exponent == "":
+        return
+
+    if is_negative:
+        power_text = f"-{base}^{exponent}"
+    else:
+        power_text = f"{base}^{exponent}"
+
+    append_to_answer(target_key, power_text)
+
+
+def general_math_input(target_key, label="수식 입력기"):
+    """
+    학생용 일반 수식 입력기.
+    특정 문제의 정답 숫자를 제시하지 않고, 학생이 직접 숫자·분수·거듭제곱을 조합할 수 있게 함.
+    """
+    with st.expander(label, expanded=False):
+        st.caption("버튼을 누르면 답안 입력칸 뒤에 자동으로 추가됩니다.")
+
+        st.markdown("##### 숫자")
+        num_cols = st.columns(10)
+        for i in range(10):
+            with num_cols[i]:
+                st.button(
+                    str(i),
+                    key=f"{target_key}_num_{i}",
+                    on_click=append_to_answer,
+                    args=(target_key, str(i))
+                )
+
+        st.markdown("##### 기호")
+        symbols = [
+            ("+", "+"),
+            ("−", "-"),
+            ("×", "×"),
+            ("÷", "÷"),
+            ("=", "="),
+            ("<", "<"),
+            (">", ">"),
+            ("(", "("),
+            (")", ")"),
+            (".", "."),
+        ]
+
+        sym_cols = st.columns(10)
+        for i, (btn_label, value) in enumerate(symbols):
+            with sym_cols[i]:
+                st.button(
+                    btn_label,
+                    key=f"{target_key}_sym_{i}",
+                    on_click=append_to_answer,
+                    args=(target_key, value)
+                )
+
+        st.markdown("##### 분수 만들기")
+
+        numerator_key = f"{target_key}_fraction_numerator"
+        denominator_key = f"{target_key}_fraction_denominator"
+        fraction_negative_key = f"{target_key}_fraction_negative"
+
+        frac_col1, frac_col2, frac_col3, frac_col4 = st.columns([2, 2, 1, 2])
+
+        with frac_col1:
+            st.text_input(
+                "분자",
+                key=numerator_key,
+            )
+
+        with frac_col2:
+            st.text_input(
+                "분모",
+                key=denominator_key,
+            )
+
+        with frac_col3:
+            st.checkbox(
+                "음수",
+                key=fraction_negative_key
+            )
+
+        with frac_col4:
+            st.button(
+                "분수 넣기",
+                key=f"{target_key}_insert_fraction",
+                on_click=insert_fraction,
+                args=(target_key, numerator_key, denominator_key, fraction_negative_key)
+            )
+
+        st.markdown("##### 거듭제곱 만들기")
+
+        base_key = f"{target_key}_power_base"
+        exponent_key = f"{target_key}_power_exponent"
+        power_negative_key = f"{target_key}_power_negative"
+
+        pow_col1, pow_col2, pow_col3, pow_col4 = st.columns([2, 2, 1, 2])
+
+        with pow_col1:
+            st.text_input(
+                "밑",
+                key=base_key,
+            )
+
+        with pow_col2:
+            st.text_input(
+                "지수",
+                key=exponent_key,
+            )
+
+        with pow_col3:
+            st.checkbox(
+                "앞에 -",
+                key=power_negative_key
+            )
+
+        with pow_col4:
+            st.button(
+                "거듭제곱 넣기",
+                key=f"{target_key}_insert_power",
+                on_click=insert_power,
+                args=(target_key, base_key, exponent_key, power_negative_key)
+            )
+
+        st.markdown("##### 수정")
+        edit_col1, edit_col2 = st.columns(2)
+
+        with edit_col1:
+            st.button(
+                "⌫ 한 글자 지우기",
+                key=f"{target_key}_backspace",
+                on_click=backspace_answer,
+                args=(target_key,)
+            )
+
+        with edit_col2:
+            st.button(
+                "전체 지우기",
+                key=f"{target_key}_clear",
+                on_click=clear_answer,
+                args=(target_key,)
+            )
+
 
 def is_completed(keys):
     """해당 문항의 답안 입력 여부 확인"""
@@ -644,7 +829,7 @@ st.markdown(
         <p style="font-size: 16px; line-height: 1.7; color: #374151;">
             작성한 답안을 입력한 뒤 문제의 조건에 맞게 작성하였는지 확인하세요.
             수업 시간에 배운 정수와 유리수의 개념, 계산 순서, 부호 판단, 대소 비교를 복습할 수 있습니다.
-            참고용으로 활용하세요. 😊
+            서술형 답안 작성 참고용으로 활용하세요. 😊
         </p>
     </div>
     """,
@@ -652,6 +837,9 @@ st.markdown(
 )
 
 st.divider()
+st.info(
+    "수식을 직접 입력하기 어렵다면 각 답안칸 아래의 '수식 입력기'를 열어 숫자, 분수, 거듭제곱을 만들어 입력할 수 있습니다."
+)
 
 # -----------------------------
 # 진행률 표시
@@ -715,29 +903,29 @@ with tab1:
     st.text_input(
         "1-(1) 답안 입력",
         key="q1_1",
-        placeholder="예: -4, -3/5, -6/3"
     )
+    general_math_input("q1_1")
 
     st.markdown("#### (2) 정수가 아닌 유리수를 모두 찾으시오. [1점]")
     st.text_input(
         "1-(2) 답안 입력",
         key="q1_2",
-        placeholder="예: 1/2, -3/5, 3.6"
     )
+    general_math_input("q1_2")
 
     st.markdown("#### (3) 절댓값이 같은 두 수를 모두 찾으시오. [1점]")
     st.text_input(
         "1-(3) 답안 입력",
         key="q1_3",
-        placeholder="예: +2, -6/3"
     )
+    general_math_input("q1_3")
 
     st.markdown("#### (4) 부등호를 이용하여 위의 수를 작은 것부터 순서대로 나열하시오. [1점]")
     st.text_input(
         "1-(4) 답안 입력",
         key="q1_4",
-        placeholder="예: -4<-6/3<-3/5<0<1/2<2<3.6<10"
     )
+    general_math_input("q1_4")
     
 # -----------------------------
 # 문제 2
@@ -755,8 +943,8 @@ with tab2:
         "2-(1) 답안 입력",
         key="q2_1",
         height=160,
-        placeholder="예: 현우는 나눗셈보다 덧셈을 먼저 해서 틀렸다. 5+(-6)÷2=5+(-3)=2"
     )
+    general_math_input("q2_1")
 
     st.markdown("#### (2) 지수의 풀이를 보고, 틀린 부분이 있다면 고치고 그 이유를 쓰시오. [2점]")
 
@@ -767,8 +955,8 @@ with tab2:
         "2-(2) 답안 입력",
         key="q2_2",
         height=160,
-        placeholder="예: 지수는 곱셈을 먼저 하지 않아서 틀렸다. 5×(-6)-2×(-3)=-30-(-6)=-24"
     )
+    general_math_input("q2_2")
     
 # -----------------------------
 # 문제 3
@@ -799,8 +987,8 @@ with tab3:
         "3번 답안 입력",
         key="q3",
         height=180,
-        placeholder="예: 옳은 사람은 건우이다. -2^4=-16이므로 음수이고, 음수 2개를 곱하므로 결과의 부호는 양수이다."
     )
+    general_math_input("q3")
     
 # -----------------------------
 # 문제 4
@@ -828,41 +1016,40 @@ with tab4:
 
     st.markdown("#### 진호")
     st.text_area(
-        "진호의 식과 최종 점수",
-        key="q4_jinho",
-        height=120,
-        placeholder="예: 2×3÷1/2-3/2=21/2"
-    )
+    "진호의 식과 최종 점수",
+    key="q4_jinho",
+    height=120,
+)
+general_math_input("q4_jinho")
 
     st.markdown("#### 해인")
     st.text_area(
         "해인의 식과 최종 점수",
         key="q4_haein",
         height=120,
-        placeholder="예: (-1)÷2×(-1/4)-3/2=-11/8"
     )
+general_math_input("q4_haein")
 
     st.markdown("#### 승혜")
     st.text_area(
         "승혜의 식과 최종 점수",
         key="q4_seunghye",
         height=120,
-        placeholder="예: 1÷2×3+7=17/2"
     )
+general_math_input("q4_seunghye")
 
     st.markdown("#### 민섭")
     st.text_area(
         "민섭의 식과 최종 점수",
         key="q4_minseop",
         height=120,
-        placeholder="예: (-3)×(-1/4)÷1/2+7=17/2"
     )
+general_math_input("q4_minseop")
 
     st.markdown("#### 간식을 사게 될 학생")
     st.text_input(
         "최종 판단 입력",
         key="q4_final",
-        placeholder="예: 해인"
     )
 
 # -----------------------------
