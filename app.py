@@ -807,6 +807,67 @@ def general_math_input(target_key, label="수식 입력기"):
                 args=(target_key,)
             )
 
+# -----------------------------
+# 답안 수식 미리보기
+# -----------------------------
+
+def simple_expr_to_latex(text):
+    """
+    학생이 입력한 간단한 수식 문자열을 LaTeX 형태로 변환.
+    채점에는 영향을 주지 않고, 화면 미리보기용으로만 사용.
+    """
+    if text is None:
+        return ""
+
+    expr = text.strip()
+
+    if expr == "":
+        return ""
+
+    # 기본 기호 정리
+    expr = expr.replace("×", r"\times ")
+    expr = expr.replace("÷", r"\div ")
+    expr = expr.replace("*", r"\times ")
+
+    # 공백 정리
+    expr = expr.replace(" ", "")
+
+    # 부등호 주변 간격
+    expr = expr.replace("<", r" < ")
+    expr = expr.replace(">", r" > ")
+    expr = expr.replace("=", r" = ")
+
+    # 거듭제곱: -2^4, 2^4 등을 LaTeX로 변환
+    expr = re.sub(
+        r"(-?\d+)\^(\d+)",
+        r"\1^{\2}",
+        expr
+    )
+
+    # 분수 변환
+    # 예: -1/2 -> -\frac{1}{2}, 3/5 -> \frac{3}{5}
+    expr = re.sub(
+        r"(?<!\d)(-?\d+)\/(\d+)(?!\d)",
+        lambda m: (
+            r"-\frac{" + m.group(1)[1:] + "}{" + m.group(2) + "}"
+            if m.group(1).startswith("-")
+            else r"\frac{" + m.group(1) + "}{" + m.group(2) + "}"
+        ),
+        expr
+    )
+
+    return expr
+
+
+def show_answer_preview(target_key, label="입력한 답안 수식 미리보기"):
+    """
+    답안칸에 입력된 내용을 LaTeX로 미리 보여줌.
+    """
+    answer = st.session_state.get(target_key, "").strip()
+
+    if answer:
+        st.caption(label)
+        st.latex(simple_expr_to_latex(answer))
 
 def is_completed(keys):
     """해당 문항의 답안 입력 여부 확인"""
@@ -904,13 +965,15 @@ with tab1:
         "1-(1) 답안 입력",
         key="q1_1",
     )
+    show_answer_preview("q1_1")
     general_math_input("q1_1")
-
+    
     st.markdown("#### (2) 정수가 아닌 유리수를 모두 찾으시오. [1점]")
     st.text_input(
         "1-(2) 답안 입력",
         key="q1_2",
     )
+    show_answer_preview("q1_2")
     general_math_input("q1_2")
 
     st.markdown("#### (3) 절댓값이 같은 두 수를 모두 찾으시오. [1점]")
@@ -918,6 +981,7 @@ with tab1:
         "1-(3) 답안 입력",
         key="q1_3",
     )
+    show_answer_preview("q1_3")
     general_math_input("q1_3")
 
     st.markdown("#### (4) 부등호를 이용하여 위의 수를 작은 것부터 순서대로 나열하시오. [1점]")
@@ -925,6 +989,7 @@ with tab1:
         "1-(4) 답안 입력",
         key="q1_4",
     )
+    show_answer_preview("q1_4")
     general_math_input("q1_4")
     
 # -----------------------------
@@ -944,6 +1009,7 @@ with tab2:
         key="q2_1",
         height=160,
     )
+    show_answer_preview("q2_1")
     general_math_input("q2_1")
 
     st.markdown("#### (2) 지수의 풀이를 보고, 틀린 부분이 있다면 고치고 그 이유를 쓰시오. [2점]")
@@ -956,6 +1022,7 @@ with tab2:
         key="q2_2",
         height=160,
     )
+    show_answer_preview("q2_2")
     general_math_input("q2_2")
     
 # -----------------------------
@@ -988,6 +1055,7 @@ with tab3:
         key="q3",
         height=180,
     )
+    show_answer_preview("q3")
     general_math_input("q3")
     
 # -----------------------------
@@ -1020,6 +1088,7 @@ with tab4:
         key="q4_jinho",
         height=120,
     )
+    show_answer_preview("q4_jinho")
     general_math_input("q4_jinho")
 
     st.markdown("#### 해인")
@@ -1028,6 +1097,7 @@ with tab4:
         key="q4_haein",
         height=120,
     )
+    show_answer_preview("q4_haein")
     general_math_input("q4_haein")
 
     st.markdown("#### 승혜")
@@ -1036,6 +1106,7 @@ with tab4:
         key="q4_seunghye",
         height=120,
     )
+    show_answer_preview("q4_seunghye")
     general_math_input("q4_seunghye")
 
     st.markdown("#### 민섭")
@@ -1044,6 +1115,7 @@ with tab4:
         key="q4_minseop",
         height=120,
     )
+    show_answer_preview("q4_minseop")
     general_math_input("q4_minseop")
 
     st.markdown("#### 간식을 사게 될 학생")
