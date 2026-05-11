@@ -961,10 +961,6 @@ tab1, tab2, tab3, tab4, tab_review = st.tabs(
 # 문제 1
 # -----------------------------
 
-# -----------------------------
-# 문제 1
-# -----------------------------
-
 with tab1:
     st.subheader("문제 1. 정수와 유리수의 분류와 대소 관계")
 
@@ -1229,6 +1225,78 @@ with tab4:
         )
 
         st.image("problem4.png", use_container_width=True)
+
+    st.markdown("")
+
+    st.markdown("**진호**")
+    st.text_area(
+        "진호의 식과 최종 점수",
+        key="q4_jinho",
+        height=120,
+        label_visibility="collapsed"
+    )
+    show_answer_preview("q4_jinho")
+    general_math_input("q4_jinho")
+
+    st.markdown("**해인**")
+    st.text_area(
+        "해인의 식과 최종 점수",
+        key="q4_haein",
+        height=120,
+        label_visibility="collapsed"
+    )
+    show_answer_preview("q4_haein")
+    general_math_input("q4_haein")
+
+    st.markdown("**승혜**")
+    st.text_area(
+        "승혜의 식과 최종 점수",
+        key="q4_seunghye",
+        height=120,
+        label_visibility="collapsed"
+    )
+    show_answer_preview("q4_seunghye")
+    general_math_input("q4_seunghye")
+
+    st.markdown("**민섭**")
+    st.text_area(
+        "민섭의 식과 최종 점수",
+        key="q4_minseop",
+        height=120,
+        label_visibility="collapsed"
+    )
+    show_answer_preview("q4_minseop")
+    general_math_input("q4_minseop")
+
+    st.markdown("**간식을 사게 될 학생**")
+    st.text_input(
+        "최종 판단 입력",
+        key="q4_final",
+        label_visibility="collapsed"
+    )
+
+    st.markdown("")
+
+    if st.button("제출", key="grade_q4_button", use_container_width=False):
+        q4_total, q4_scores, q4_feedback = grade_q4(
+            st.session_state.q4_jinho,
+            st.session_state.q4_haein,
+            st.session_state.q4_seunghye,
+            st.session_state.q4_minseop,
+            st.session_state.q4_final
+        )
+
+        st.success(f"문제 4 점수: {q4_total} / 9점")
+
+        result_rows = []
+        for key in q4_scores:
+            result_rows.append({
+                "채점 항목": key,
+                "점수": q4_scores[key],
+                "피드백": q4_feedback[key]
+            })
+
+        st.dataframe(result_rows, use_container_width=True, hide_index=True)
         
 # -----------------------------
 # 복습할 내용
