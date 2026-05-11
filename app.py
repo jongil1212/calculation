@@ -957,7 +957,6 @@ with tab1:
     st.subheader("문제 1. 정수와 유리수의 분류와 대소 관계")
 
     # 문제 제시 상자
-        # 문제 제시 상자
     st.markdown(
         """
         <div style="
