@@ -588,16 +588,3 @@ def grade_q4(jinho_ans, haein_ans, seunghye_ans, minseop_ans, final_answer):
     feedback["4 간식 학생 판단"] = f
 
     return sum(scores.values()), scores, feedback
-
-
-제목
-설명
-완료된 문제 수 / 진행바
-처음부터 버튼
-
-[문제 1] [문제 2] [문제 3] [문제 4] [복습할 내용]
-
-선택한 문제만 화면에 표시
-답안 작성 칸 표시
-
-맨 아래 전체 채점하기 버튼
