@@ -1228,53 +1228,68 @@ with tab4:
 
     st.markdown("")
 
-    st.markdown("**진호**")
-    st.text_area(
-        "진호의 식과 최종 점수",
-        key="q4_jinho",
-        height=120,
-        label_visibility="collapsed"
-    )
-    show_answer_preview("q4_jinho")
-    general_math_input("q4_jinho")
+        # 답안 입력: 1행 - 진호 | 해인
+    col_q4_1, col_q4_2 = st.columns(2)
 
-    st.markdown("**해인**")
-    st.text_area(
-        "해인의 식과 최종 점수",
-        key="q4_haein",
-        height=120,
-        label_visibility="collapsed"
-    )
-    show_answer_preview("q4_haein")
-    general_math_input("q4_haein")
+    with col_q4_1:
+        st.markdown("**진호**")
+        st.text_area(
+            "진호의 식과 최종 점수",
+            key="q4_jinho",
+            height=140,
+            label_visibility="collapsed"
+        )
+        show_answer_preview("q4_jinho")
+        general_math_input("q4_jinho")
 
-    st.markdown("**승혜**")
-    st.text_area(
-        "승혜의 식과 최종 점수",
-        key="q4_seunghye",
-        height=120,
-        label_visibility="collapsed"
-    )
-    show_answer_preview("q4_seunghye")
-    general_math_input("q4_seunghye")
+    with col_q4_2:
+        st.markdown("**해인**")
+        st.text_area(
+            "해인의 식과 최종 점수",
+            key="q4_haein",
+            height=140,
+            label_visibility="collapsed"
+        )
+        show_answer_preview("q4_haein")
+        general_math_input("q4_haein")
 
-    st.markdown("**민섭**")
-    st.text_area(
-        "민섭의 식과 최종 점수",
-        key="q4_minseop",
-        height=120,
-        label_visibility="collapsed"
-    )
-    show_answer_preview("q4_minseop")
-    general_math_input("q4_minseop")
+    st.markdown("")
 
+    # 답안 입력: 2행 - 승혜 | 민섭
+    col_q4_3, col_q4_4 = st.columns(2)
+
+    with col_q4_3:
+        st.markdown("**승혜**")
+        st.text_area(
+            "승혜의 식과 최종 점수",
+            key="q4_seunghye",
+            height=140,
+            label_visibility="collapsed"
+        )
+        show_answer_preview("q4_seunghye")
+        general_math_input("q4_seunghye")
+
+    with col_q4_4:
+        st.markdown("**민섭**")
+        st.text_area(
+            "민섭의 식과 최종 점수",
+            key="q4_minseop",
+            height=140,
+            label_visibility="collapsed"
+        )
+        show_answer_preview("q4_minseop")
+        general_math_input("q4_minseop")
+
+    st.markdown("")
+
+    # 최종 판단
     st.markdown("**간식을 사게 될 학생**")
     st.text_input(
         "최종 판단 입력",
         key="q4_final",
         label_visibility="collapsed"
     )
-
+    
     st.markdown("")
 
     if st.button("제출", key="grade_q4_button", use_container_width=False):
