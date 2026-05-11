@@ -1232,7 +1232,7 @@ with tab4:
     col_q4_1, col_q4_2 = st.columns(2)
 
     with col_q4_1:
-        st.markdown("**진호**")
+        st.markdown("**진호의 계산식과 최종 점수**")
         st.text_area(
             "진호의 식과 최종 점수",
             key="q4_jinho",
