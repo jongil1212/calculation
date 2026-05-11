@@ -266,6 +266,8 @@ def grade_q2_1_reason(answer: str):
     """
     text = normalize_korean_text(answer)
 
+    retry_feedback = "덧셈, 뺄셈, 곱셈, 나눗셈이 혼합된 식에서 무엇부터 계산해야 했는지 생각해봅시다."
+
     has_division = contains_any(text, [
         r"나눗셈", r"나누기", r"몫", r"/", r"÷"
     ])
@@ -274,22 +276,17 @@ def grade_q2_1_reason(answer: str):
         r"먼저", r"우선", r"앞서", r"부터", r"먼저계산"
     ])
 
-    has_addition_context = contains_any(text, [
-        r"덧셈", r"더하기", r"\+", r"5\+"
-    ])
-
     misconception = contains_any(text, [
         r"왼쪽부터", r"순서대로만", r"더하기를먼저", r"덧셈을먼저"
     ])
 
     if misconception and not (has_division and has_first):
-        return 0.0, "계산 순서에 대한 오개념이 있습니다."
+        return 0.0, retry_feedback
 
     if has_division and has_first:
         return 1.0, "나눗셈을 먼저 해야 한다는 이유를 설명했습니다."
 
-    # '사칙연산 순서가 틀렸다'만 있는 경우는 의미가 불완전하므로 0 처리
-    return 0.0, "나눗셈을 덧셈보다 먼저 해야 한다는 의미가 부족합니다."
+    return 0.0, retry_feedback
 
 
 def grade_q2_2_calc(answer: str):
@@ -316,6 +313,8 @@ def grade_q2_2_reason(answer: str):
     """
     text = normalize_korean_text(answer)
 
+    retry_feedback = "덧셈, 뺄셈, 곱셈, 나눗셈이 혼합된 식에서 무엇부터 계산해야 했는지 생각해봅시다."
+
     has_multiplication = contains_any(text, [
         r"곱셈", r"곱하기", r"곱", r"\*", r"×"
     ])
@@ -329,12 +328,12 @@ def grade_q2_2_reason(answer: str):
     ])
 
     if misconception and not (has_multiplication and has_first):
-        return 0.0, "계산 순서에 대한 오개념이 있습니다."
+        return 0.0, retry_feedback
 
     if has_multiplication and has_first:
         return 1.0, "곱셈을 먼저 해야 한다는 이유를 설명했습니다."
 
-    return 0.0, "곱셈을 뺄셈보다 먼저 해야 한다는 의미가 부족합니다."
+    return 0.0, retry_feedback
 
 
 def grade_q2(answer_1: str, answer_2: str):
