@@ -880,6 +880,9 @@ def show_answer_preview(target_key, label="입력한 답안 수식 미리보기"
 def is_completed(keys):
     """해당 문항의 답안 입력 여부 확인"""
     return all(st.session_state.get(k, "").strip() for k in keys)
+def is_all_blank(keys):
+    """해당 문제의 답안칸이 모두 비어 있는지 확인"""
+    return all(st.session_state.get(k, "").strip() == "" for k in keys)
 
 
 def reset_answers():
@@ -1007,24 +1010,27 @@ with tab1:
     general_math_input("q1_4")
 
     if st.button("제출", key="grade_q1_button", use_container_width=False):
-        q1_total, q1_scores, q1_feedback = grade_q1({
-            "1-(1)": st.session_state.q1_1,
-            "1-(2)": st.session_state.q1_2,
-            "1-(3)": st.session_state.q1_3,
-            "1-(4)": st.session_state.q1_4,
-        })
-
-        st.success(f"문제 1 점수: {q1_total} / 4점")
-
-        result_rows = []
-        for key in q1_scores:
-            result_rows.append({
-                "채점 항목": key,
-                "점수": q1_scores[key],
-                "피드백": q1_feedback[key]
+        if is_all_blank(["q1_1", "q1_2", "q1_3", "q1_4"]):
+            st.warning("답변을 작성하고 제출해주세요.")
+        else:
+            q1_total, q1_scores, q1_feedback = grade_q1({
+                "1-(1)": st.session_state.q1_1,
+                "1-(2)": st.session_state.q1_2,
+                "1-(3)": st.session_state.q1_3,
+                "1-(4)": st.session_state.q1_4,
             })
 
-        st.dataframe(result_rows, use_container_width=True, hide_index=True)
+            st.success(f"문제 1 점수: {q1_total} / 4점")
+
+            result_rows = []
+            for key in q1_scores:
+                result_rows.append({
+                    "채점 항목": key,
+                    "점수": q1_scores[key],
+                    "피드백": q1_feedback[key]
+                })
+
+            st.dataframe(result_rows, use_container_width=True, hide_index=True)
     
 # -----------------------------
 # 문제 2
@@ -1101,34 +1107,42 @@ with tab2:
 
     # 문제 2 개별 채점 버튼
     if st.button("제출", key="grade_q2_button", use_container_width=False):
-        q2_1_combined = (
-            st.session_state.q2_1_solution
-            + " "
-            + st.session_state.q2_1_reason
-        )
+        if is_all_blank([
+            "q2_1_solution",
+            "q2_1_reason",
+            "q2_2_solution",
+            "q2_2_reason"
+        ]):
+            st.warning("답변을 작성하고 제출해주세요.")
+        else:
+            q2_1_combined = (
+                st.session_state.q2_1_solution
+                + " "
+                + st.session_state.q2_1_reason
+            )
 
-        q2_2_combined = (
-            st.session_state.q2_2_solution
-            + " "
-            + st.session_state.q2_2_reason
-        )
+            q2_2_combined = (
+                st.session_state.q2_2_solution
+                + " "
+                + st.session_state.q2_2_reason
+            )
 
-        q2_total, q2_scores, q2_feedback = grade_q2(
-            q2_1_combined,
-            q2_2_combined
-        )
+            q2_total, q2_scores, q2_feedback = grade_q2(
+                q2_1_combined,
+                q2_2_combined
+            )
 
-        st.success(f"문제 2 점수: {q2_total} / 4점")
+            st.success(f"문제 2 점수: {q2_total} / 4점")
 
-        result_rows = []
-        for key in q2_scores:
-            result_rows.append({
-                "채점 항목": key,
-                "점수": q2_scores[key],
-                "피드백": q2_feedback[key]
-            })
+            result_rows = []
+            for key in q2_scores:
+                result_rows.append({
+                    "채점 항목": key,
+                    "점수": q2_scores[key],
+                    "피드백": q2_feedback[key]
+                })
 
-        st.dataframe(result_rows, use_container_width=True, hide_index=True)
+            st.dataframe(result_rows, use_container_width=True, hide_index=True)
     
 # -----------------------------
 # 문제 3
@@ -1188,25 +1202,28 @@ with tab3:
 
     # 문제 3 개별 채점 버튼
     if st.button("제출", key="grade_q3_button", use_container_width=False):
-        q3_combined = (
-            st.session_state.q3_person
-            + " "
-            + st.session_state.q3_reason
-        )
+        if is_all_blank(["q3_person", "q3_reason"]):
+            st.warning("답변을 작성하고 제출해주세요.")
+        else:
+            q3_combined = (
+                st.session_state.q3_person
+                + " "
+                + st.session_state.q3_reason
+            )
 
-        q3_total, q3_scores, q3_feedback = grade_q3(q3_combined)
+            q3_total, q3_scores, q3_feedback = grade_q3(q3_combined)
 
-        st.success(f"문제 3 점수: {q3_total} / 3점")
+            st.success(f"문제 3 점수: {q3_total} / 3점")
 
-        result_rows = []
-        for key in q3_scores:
-            result_rows.append({
-                "채점 항목": key,
-                "점수": q3_scores[key],
-                "피드백": q3_feedback[key]
-            })
+            result_rows = []
+            for key in q3_scores:
+                result_rows.append({
+                    "채점 항목": key,
+                    "점수": q3_scores[key],
+                    "피드백": q3_feedback[key]
+                })
 
-        st.dataframe(result_rows, use_container_width=True, hide_index=True)
+            st.dataframe(result_rows, use_container_width=True, hide_index=True)
     
 # -----------------------------
 # 문제 4
@@ -1293,25 +1310,34 @@ with tab4:
     st.markdown("")
 
     if st.button("제출", key="grade_q4_button", use_container_width=False):
-        q4_total, q4_scores, q4_feedback = grade_q4(
-            st.session_state.q4_jinho,
-            st.session_state.q4_haein,
-            st.session_state.q4_seunghye,
-            st.session_state.q4_minseop,
-            st.session_state.q4_final
-        )
+        if is_all_blank([
+            "q4_jinho",
+            "q4_haein",
+            "q4_seunghye",
+            "q4_minseop",
+            "q4_final"
+        ]):
+            st.warning("답변을 작성하고 제출해주세요.")
+        else:
+            q4_total, q4_scores, q4_feedback = grade_q4(
+                st.session_state.q4_jinho,
+                st.session_state.q4_haein,
+                st.session_state.q4_seunghye,
+                st.session_state.q4_minseop,
+                st.session_state.q4_final
+            )
 
-        st.success(f"문제 4 점수: {q4_total} / 9점")
+            st.success(f"문제 4 점수: {q4_total} / 9점")
 
-        result_rows = []
-        for key in q4_scores:
-            result_rows.append({
-                "채점 항목": key,
-                "점수": q4_scores[key],
-                "피드백": q4_feedback[key]
-            })
+            result_rows = []
+            for key in q4_scores:
+                result_rows.append({
+                    "채점 항목": key,
+                    "점수": q4_scores[key],
+                    "피드백": q4_feedback[key]
+                })
 
-        st.dataframe(result_rows, use_container_width=True, hide_index=True)
+            st.dataframe(result_rows, use_container_width=True, hide_index=True)
         
 # -----------------------------
 # 복습할 내용
