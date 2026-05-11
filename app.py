@@ -608,8 +608,14 @@ default_values = {
     "q1_2": "",
     "q1_3": "",
     "q1_4": "",
+
     "q2_1": "",
     "q2_2": "",
+    "q2_1_solution": "",
+    "q2_1_reason": "",
+    "q2_2_solution": "",
+    "q2_2_reason": "",
+
     "q3": "",
     "q4_jinho": "",
     "q4_haein": "",
@@ -910,7 +916,7 @@ completed_count = 0
 
 if is_completed(["q1_1", "q1_2", "q1_3", "q1_4"]):
     completed_count += 1
-if is_completed(["q2_1", "q2_2"]):
+if is_completed(["q2_1_solution", "q2_1_reason", "q2_2_solution", "q2_2_reason"]):
     completed_count += 1
 if is_completed(["q3"]):
     completed_count += 1
@@ -1029,31 +1035,102 @@ with tab1:
 with tab2:
     st.subheader("문제 2. 계산 순서 오류 수정하기")
 
-    st.markdown("#### (1) 현우의 풀이를 보고, 틀린 부분이 있다면 고치고 그 이유를 쓰시오. [2점]")
+    # -----------------------------
+    # 2-(1)
+    # -----------------------------
+    st.markdown("**(1) 현우의 풀이를 보고, 틀린 부분이 있다면 고치고 그 이유를 쓰시오. [2점]**")
 
-    st.markdown("**현우의 풀이**")
-    st.latex(r"5+(-6)\div2=(-1)\div2=-\frac{1}{2}")
+    with st.container(border=True):
+        st.markdown("**현우의 풀이**")
+        st.latex(r"5+(-6)\div2=(-1)\div2=-\frac{1}{2}")
 
-    st.text_area(
-        "2-(1) 답안 입력",
-        key="q2_1",
-        height=160,
-    )
-    show_answer_preview("q2_1")
-    general_math_input("q2_1")
+    col_q2_1_a, col_q2_1_b = st.columns(2)
 
-    st.markdown("#### (2) 지수의 풀이를 보고, 틀린 부분이 있다면 고치고 그 이유를 쓰시오. [2점]")
+    with col_q2_1_a:
+        st.markdown("**나의 풀이**")
+        st.text_area(
+            "2-(1) 나의 풀이",
+            key="q2_1_solution",
+            height=170,
+            label_visibility="collapsed"
+        )
+        show_answer_preview("q2_1_solution")
+        general_math_input("q2_1_solution")
 
-    st.markdown("**지수의 풀이**")
-    st.latex(r"5\times(-6)-2\times(-3)=(-30)-2\times(-3)=(-32)\times(-3)=96")
+    with col_q2_1_b:
+        st.markdown("**수정한 이유**")
+        st.text_area(
+            "2-(1) 수정한 이유",
+            key="q2_1_reason",
+            height=170,
+            label_visibility="collapsed"
+        )
 
-    st.text_area(
-        "2-(2) 답안 입력",
-        key="q2_2",
-        height=160,
-    )
-    show_answer_preview("q2_2")
-    general_math_input("q2_2")
+    st.divider()
+
+    # -----------------------------
+    # 2-(2)
+    # -----------------------------
+    st.markdown("**(2) 지수의 풀이를 보고, 틀린 부분이 있다면 고치고 그 이유를 쓰시오. [2점]**")
+
+    with st.container(border=True):
+        st.markdown("**지수의 풀이**")
+        st.latex(r"5\times(-6)-2\times(-3)=(-30)-2\times(-3)=(-32)\times(-3)=96")
+
+    col_q2_2_a, col_q2_2_b = st.columns(2)
+
+    with col_q2_2_a:
+        st.markdown("**나의 풀이**")
+        st.text_area(
+            "2-(2) 나의 풀이",
+            key="q2_2_solution",
+            height=170,
+            label_visibility="collapsed"
+        )
+        show_answer_preview("q2_2_solution")
+        general_math_input("q2_2_solution")
+
+    with col_q2_2_b:
+        st.markdown("**수정한 이유**")
+        st.text_area(
+            "2-(2) 수정한 이유",
+            key="q2_2_reason",
+            height=170,
+            label_visibility="collapsed"
+        )
+
+    st.markdown("")
+
+    # 문제 2 개별 채점 버튼
+    if st.button("제출", key="grade_q2_button", use_container_width=False):
+        q2_1_combined = (
+            st.session_state.q2_1_solution
+            + " "
+            + st.session_state.q2_1_reason
+        )
+
+        q2_2_combined = (
+            st.session_state.q2_2_solution
+            + " "
+            + st.session_state.q2_2_reason
+        )
+
+        q2_total, q2_scores, q2_feedback = grade_q2(
+            q2_1_combined,
+            q2_2_combined
+        )
+
+        st.success(f"문제 2 점수: {q2_total} / 4점")
+
+        result_rows = []
+        for key in q2_scores:
+            result_rows.append({
+                "채점 항목": key,
+                "점수": q2_scores[key],
+                "피드백": q2_feedback[key]
+            })
+
+        st.dataframe(result_rows, use_container_width=True, hide_index=True)
     
 # -----------------------------
 # 문제 3
@@ -1242,9 +1319,21 @@ if st.button("전체 채점하기", type="primary", use_container_width=True):
         "1-(4)": st.session_state.q1_4,
     })
 
+    q2_1_combined = (
+        st.session_state.q2_1_solution
+        + " "
+        + st.session_state.q2_1_reason
+    )
+
+    q2_2_combined = (
+        st.session_state.q2_2_solution
+        + " "
+        + st.session_state.q2_2_reason
+    )
+
     q2_total, q2_scores, q2_feedback = grade_q2(
-        st.session_state.q2_1,
-        st.session_state.q2_2
+        q2_1_combined,
+        q2_2_combined
     )
 
     q3_total, q3_scores, q3_feedback = grade_q3(
