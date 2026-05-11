@@ -956,22 +956,44 @@ tab1, tab2, tab3, tab4, tab_review = st.tabs(
 with tab1:
     st.subheader("문제 1. 정수와 유리수의 분류와 대소 관계")
 
-    st.markdown("보기의 숫자들에 대해 질문에 답하시오.")
+    # 문제 제시 상자
+    st.markdown(
+        """
+        <div style="
+            background-color: #EAF3FF;
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin: 16px 0 24px 0;
+            border: 1px solid #D6E8FF;
+        ">
+            <p style="font-size: 16px; line-height: 1.7; margin-bottom: 12px;">
+                보기의 숫자들에 대해 질문에 답하시오.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-    st.latex(r"-4,\quad 0,\quad +\frac{1}{2},\quad -\frac{3}{5},\quad +2,\quad 3.6,\quad 10,\quad -\frac{6}{3}")
+    st.latex(
+        r"-4,\quad 0,\quad +\frac{1}{2},\quad -\frac{3}{5},\quad +2,\quad 3.6,\quad 10,\quad -\frac{6}{3}"
+    )
 
     st.markdown("#### (1) 음수를 모두 찾으시오. [1점]")
     st.text_input(
         "1-(1) 답안 입력",
         key="q1_1",
+        label_visibility="collapsed",
+        placeholder="예: -4, -3/5, -6/3"
     )
     show_answer_preview("q1_1")
     general_math_input("q1_1")
-    
+
     st.markdown("#### (2) 정수가 아닌 유리수를 모두 찾으시오. [1점]")
     st.text_input(
         "1-(2) 답안 입력",
         key="q1_2",
+        label_visibility="collapsed",
+        placeholder="예: 1/2, -3/5, 3.6"
     )
     show_answer_preview("q1_2")
     general_math_input("q1_2")
@@ -980,6 +1002,8 @@ with tab1:
     st.text_input(
         "1-(3) 답안 입력",
         key="q1_3",
+        label_visibility="collapsed",
+        placeholder="예: +2, -6/3"
     )
     show_answer_preview("q1_3")
     general_math_input("q1_3")
@@ -988,9 +1012,34 @@ with tab1:
     st.text_input(
         "1-(4) 답안 입력",
         key="q1_4",
+        label_visibility="collapsed",
+        placeholder="예: -4<-6/3<-3/5<0<1/2<2<3.6<10"
     )
     show_answer_preview("q1_4")
     general_math_input("q1_4")
+
+    st.markdown("")
+
+    # 문제 1 문항별 채점 버튼
+    if st.button("제출", key="grade_q1_button", use_container_width=False):
+        q1_total, q1_scores, q1_feedback = grade_q1({
+            "1-(1)": st.session_state.q1_1,
+            "1-(2)": st.session_state.q1_2,
+            "1-(3)": st.session_state.q1_3,
+            "1-(4)": st.session_state.q1_4,
+        })
+
+        st.success(f"문제 1 점수: {q1_total} / 4점")
+
+        result_rows = []
+        for key in q1_scores:
+            result_rows.append({
+                "채점 항목": key,
+                "점수": q1_scores[key],
+                "피드백": q1_feedback[key]
+            })
+
+        st.dataframe(result_rows, use_container_width=True, hide_index=True)
     
 # -----------------------------
 # 문제 2
