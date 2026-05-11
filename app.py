@@ -1243,7 +1243,7 @@ with tab4:
         general_math_input("q4_jinho")
 
     with col_q4_2:
-        st.markdown("**해인**")
+        st.markdown("**해인의 계산식과 최종 점수**")
         st.text_area(
             "해인의 식과 최종 점수",
             key="q4_haein",
@@ -1259,7 +1259,7 @@ with tab4:
     col_q4_3, col_q4_4 = st.columns(2)
 
     with col_q4_3:
-        st.markdown("**승혜**")
+        st.markdown("**승혜의 계산식과 최종 점수**")
         st.text_area(
             "승혜의 식과 최종 점수",
             key="q4_seunghye",
@@ -1270,7 +1270,7 @@ with tab4:
         general_math_input("q4_seunghye")
 
     with col_q4_4:
-        st.markdown("**민섭**")
+        st.markdown("**민섭의 계산식과 최종 점수**")
         st.text_area(
             "민섭의 식과 최종 점수",
             key="q4_minseop",
