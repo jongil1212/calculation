@@ -957,8 +957,9 @@ with tab1:
     st.subheader("문제 1. 정수와 유리수의 분류와 대소 관계")
 
     # 문제 제시 상자
+        # 문제 제시 상자
     st.markdown(
-        r"""
+        """
         <div style="
             background-color: #EAF3FF;
             border-radius: 10px;
@@ -966,18 +967,68 @@ with tab1:
             margin: 16px 0 24px 0;
             border: 1px solid #D6E8FF;
         ">
-            <p style="font-size: 16px; line-height: 1.7; margin-bottom: 16px;">
+            <p style="font-size: 16px; line-height: 1.7; margin-bottom: 18px;">
                 보기의 숫자들에 대해 질문에 답하시오.
             </p>
-            <div style="
-                font-size: 22px;
-                text-align: center;
-                line-height: 1.8;
-                margin-top: 8px;
-            ">
-                $$
-                -4,\quad 0,\quad +\frac{1}{2},\quad -\frac{3}{5},\quad +2,\quad 3.6,\quad 10,\quad -\frac{6}{3}
-                $$
+
+            <style>
+                .number-box {
+                    text-align: center;
+                    font-size: 24px;
+                    line-height: 2.2;
+                    color: #111827;
+                }
+                .frac {
+                    display: inline-block;
+                    vertical-align: middle;
+                    text-align: center;
+                    font-size: 0.95em;
+                    margin: 0 2px;
+                }
+                .frac .top {
+                    display: block;
+                    border-bottom: 1.6px solid #111827;
+                    padding: 0 4px 1px 4px;
+                    line-height: 1.0;
+                }
+                .frac .bottom {
+                    display: block;
+                    padding: 1px 4px 0 4px;
+                    line-height: 1.0;
+                }
+                .num-item {
+                    display: inline-block;
+                    margin: 0 12px;
+                }
+            </style>
+
+            <div class="number-box">
+                <span class="num-item">−4</span>
+                <span class="num-item">0</span>
+                <span class="num-item">
+                    +
+                    <span class="frac">
+                        <span class="top">1</span>
+                        <span class="bottom">2</span>
+                    </span>
+                </span>
+                <span class="num-item">
+                    −
+                    <span class="frac">
+                        <span class="top">3</span>
+                        <span class="bottom">5</span>
+                    </span>
+                </span>
+                <span class="num-item">+2</span>
+                <span class="num-item">3.6</span>
+                <span class="num-item">10</span>
+                <span class="num-item">
+                    −
+                    <span class="frac">
+                        <span class="top">6</span>
+                        <span class="bottom">3</span>
+                    </span>
+                </span>
             </div>
         </div>
         """,
