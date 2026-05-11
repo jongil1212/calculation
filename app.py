@@ -712,6 +712,13 @@ for key, value in default_values.items():
         st.session_state[key] = value
 
 # -----------------------------
+# 채점 결과 저장 공간
+# -----------------------------
+
+if "grading_results" not in st.session_state:
+    st.session_state.grading_results = {}
+
+# -----------------------------
 # 일반 수식 입력기
 # -----------------------------
 
@@ -965,6 +972,108 @@ def is_all_blank(keys):
     """해당 문제의 답안칸이 모두 비어 있는지 확인"""
     return all(st.session_state.get(k, "").strip() == "" for k in keys)
 
+# -----------------------------
+# 맞춤형 복습 피드백
+# -----------------------------
+
+def get_review_point(item_name):
+    """채점 항목별 핵심 복습 포인트"""
+    review_points = {
+        "1-(1)": {
+            "title": "음수",
+            "point": "음수는 0보다 작은 수이며, 부호에 -가 붙은 수입니다. 단, 식의 값까지 계산해야 하는 경우도 있으므로 분수 형태의 수가 어떤 값인지 확인해야 합니다."
+        },
+        "1-(2)": {
+            "title": "정수가 아닌 유리수",
+            "point": "정수가 아닌 유리수는 분수나 소수로 나타낼 수 있지만 정수는 아닌 수입니다. -6/3처럼 분수 모양이어도 계산하면 -2가 되므로 정수입니다."
+        },
+        "1-(3)": {
+            "title": "절댓값",
+            "point": "절댓값은 수직선에서 0으로부터 떨어진 거리입니다. +2와 -2는 부호는 다르지만 0으로부터의 거리가 같으므로 절댓값이 같습니다."
+        },
+        "1-(4)": {
+            "title": "수의 대소 관계",
+            "point": "수를 작은 것부터 나열할 때는 음수, 0, 양수의 위치를 먼저 생각합니다. 음수끼리는 절댓값이 클수록 더 작은 수입니다. 문제에서 부등호를 요구하면 반드시 < 또는 >를 사용해야 합니다."
+        },
+
+        "2-(1) 계산": {
+            "title": "나눗셈이 포함된 식의 계산",
+            "point": "덧셈과 나눗셈이 함께 있는 식에서는 나눗셈을 먼저 계산합니다. 왼쪽에 있다고 해서 덧셈을 먼저 하는 것은 아닙니다."
+        },
+        "2-(1) 이유": {
+            "title": "계산 순서 설명",
+            "point": "풀이를 고칠 때는 답만 쓰는 것이 아니라, 왜 그 계산 순서가 맞는지도 설명해야 합니다. 이 문항에서는 나눗셈을 덧셈보다 먼저 해야 한다는 점이 드러나야 합니다."
+        },
+        "2-(2) 계산": {
+            "title": "곱셈이 포함된 식의 계산",
+            "point": "곱셈과 뺄셈이 함께 있는 식에서는 곱셈을 먼저 계산합니다. 특히 음수와 음수의 곱은 양수라는 점도 함께 확인해야 합니다."
+        },
+        "2-(2) 이유": {
+            "title": "계산 순서 설명",
+            "point": "이 문항에서는 곱셈을 뺄셈보다 먼저 해야 한다는 설명이 필요합니다. 계산 결과만 쓰면 이유 설명이 충분하지 않을 수 있습니다."
+        },
+
+        "옳은 사람 판단(1점)": {
+            "title": "옳은 설명 판단",
+            "point": "문제에서 두 사람의 설명을 비교할 때는 최종 답만 보지 말고, 식의 부호와 거듭제곱 해석이 맞는지 확인해야 합니다."
+        },
+        "이유 설명(2점)": {
+            "title": "거듭제곱과 곱의 부호",
+            "point": "-2^4는 (-2)^4가 아니라 -(2^4)이므로 -16입니다. 따라서 주어진 식은 음수와 음수를 곱하는 식이고, 음수가 2개이므로 결과의 부호는 양수입니다."
+        },
+
+        "4 진호 식": {
+            "title": "사다리 경로에 맞는 식 세우기",
+            "point": "사다리 문제에서는 시작 수에서 출발해 이동 경로에 있는 연산을 순서대로 식으로 나타내야 합니다."
+        },
+        "4 진호 최종점수": {
+            "title": "유리수의 곱셈과 나눗셈",
+            "point": "분수로 나누는 것은 그 분수의 역수를 곱하는 것과 같습니다. 계산 과정에서 나눗셈을 정확히 처리해야 합니다."
+        },
+        "4 해인 식": {
+            "title": "사다리 경로에 맞는 식 세우기",
+            "point": "사다리 경로를 따라가며 나눗셈, 곱셈, 뺄셈이 어떤 순서로 적용되는지 식으로 정확히 나타내야 합니다."
+        },
+        "4 해인 최종점수": {
+            "title": "음수의 곱셈과 분수 계산",
+            "point": "음수와 음수를 곱하면 양수입니다. 이후 분수의 뺄셈에서는 통분하여 계산해야 합니다."
+        },
+        "4 승혜 식": {
+            "title": "사다리 경로에 맞는 식 세우기",
+            "point": "시작 수에서 출발해 경로에 있는 연산을 빠뜨리지 않고 순서대로 식에 적어야 합니다."
+        },
+        "4 승혜 최종점수": {
+            "title": "유리수의 사칙계산",
+            "point": "나눗셈과 곱셈을 순서대로 계산한 뒤, 마지막 덧셈을 해야 합니다."
+        },
+        "4 민섭 식": {
+            "title": "사다리 경로에 맞는 식 세우기",
+            "point": "음수에서 시작하는 경우에도 경로에 있는 연산을 차례대로 적용하여 식을 세워야 합니다."
+        },
+        "4 민섭 최종점수": {
+            "title": "음수와 분수의 계산",
+            "point": "음수와 음수를 곱하면 양수입니다. 분수로 나누는 계산은 역수를 곱하는 방식으로 바꾸어 계산할 수 있습니다."
+        },
+        "4 간식 학생 판단": {
+            "title": "수의 대소 비교",
+            "point": "네 학생의 최종 점수를 모두 비교하여 가장 작은 수를 찾습니다. 음수는 양수보다 항상 작다는 점을 먼저 확인해야 합니다."
+        },
+    }
+
+    return review_points.get(item_name, {
+        "title": "해당 개념 복습",
+        "point": "문제의 조건과 자신의 답안을 다시 비교해보며 부족한 부분을 확인해봅시다."
+    })
+
+
+def save_grading_result(problem_key, total, max_score, scores, feedback):
+    """문항별 채점 결과를 세션에 저장"""
+    st.session_state.grading_results[problem_key] = {
+        "total": total,
+        "max_score": max_score,
+        "scores": scores,
+        "feedback": feedback
+    }
 
 def reset_answers():
     for key in default_values:
@@ -1100,6 +1209,7 @@ with tab1:
                 "1-(3)": st.session_state.q1_3,
                 "1-(4)": st.session_state.q1_4,
             })
+            save_grading_result("문제 1", q1_total, 4, q1_scores, q1_feedback)
 
             st.success(f"문제 1 점수: {q1_total} / 4점")
 
@@ -1213,6 +1323,8 @@ with tab2:
                 q2_2_combined
             )
 
+            save_grading_result("문제 2", q2_total, 4, q2_scores, q2_feedback)
+            
             st.success(f"문제 2 점수: {q2_total} / 4점")
 
             result_rows = []
@@ -1297,6 +1409,8 @@ with tab3:
                 st.session_state.q3_reason
             )
 
+            save_grading_result("문제 3", q3_total, 3, q3_scores, q3_feedback)
+            
             st.success(f"문제 3 점수: {q3_total} / 3점")
 
             result_rows = []
@@ -1411,6 +1525,8 @@ with tab4:
                 st.session_state.q4_final
             )
 
+            save_grading_result("문제 4", q4_total, 9, q4_scores, q4_feedback)
+            
             st.success(f"문제 4 점수: {q4_total} / 9점")
 
             result_rows = []
@@ -1432,160 +1548,45 @@ with tab_review:
 
     st.markdown(
         """
-        문제를 풀기 전에 헷갈리는 부분을 확인하거나, 채점 후 틀린 부분을 다시 복습하세요.
+        제출한 문제 중 조건을 충족하지 못한 부분만 모아 보여줍니다.  
+        아래 내용을 보고 어떤 개념을 다시 확인해야 하는지 복습해보세요.
         """
     )
 
-    with st.expander("1. 음수, 정수, 유리수"):
-        st.markdown(
-            """
-            - **음수**는 0보다 작은 수입니다.
-            - **정수**는 ..., -3, -2, -1, 0, 1, 2, 3, ... 과 같은 수입니다.
-            - **유리수**는 분수로 나타낼 수 있는 수입니다.
-            - 정수가 아닌 유리수에는 분수나 유한소수 등이 포함됩니다.
-            - 예를 들어 `-6/3`은 분수 모양이지만 계산하면 `-2`이므로 정수입니다.
-            """
-        )
+    if not st.session_state.grading_results:
+        st.info("아직 제출한 문제가 없습니다. 문제를 풀고 제출하면 복습할 내용이 여기에 표시됩니다.")
+    else:
+        has_review_item = False
 
-    with st.expander("2. 절댓값"):
-        st.markdown(
-            """
-            - 절댓값은 수직선에서 0으로부터 떨어진 거리입니다.
-            - `+2`와 `-2`는 방향은 다르지만 0으로부터의 거리가 같으므로 절댓값이 같습니다.
-            - `-6/3 = -2`이므로 `+2`와 `-6/3`은 절댓값이 같습니다.
-            """
-        )
+        for problem_name, result in st.session_state.grading_results.items():
+            scores = result["scores"]
+            feedback = result["feedback"]
+            total = result["total"]
+            max_score = result["max_score"]
 
-    with st.expander("3. 정수와 유리수의 대소 관계"):
-        st.markdown(
-            """
-            - 음수는 0보다 작고, 양수는 0보다 큽니다.
-            - 음수끼리는 절댓값이 클수록 더 작은 수입니다.
-            - 예: `-4 < -2 < -3/5 < 0`
-            - 문제에서 부등호를 이용하라고 했으면 쉼표가 아니라 `<` 또는 `>`를 사용해야 합니다.
-            """
-        )
+            weak_items = []
 
-    with st.expander("4. 사칙계산 순서"):
-        st.markdown(
-            """
-            - 괄호가 있으면 괄호 안을 먼저 계산합니다.
-            - 거듭제곱이 있으면 거듭제곱을 먼저 계산합니다.
-            - 곱셈과 나눗셈은 덧셈과 뺄셈보다 먼저 계산합니다.
-            - 같은 단계의 계산은 왼쪽에서 오른쪽으로 계산합니다.
-            """
-        )
+            for item_name, score in scores.items():
+                # 만점이 아닌 항목만 복습 대상으로 표시
+                if score < 1.0:
+                    weak_items.append(item_name)
 
-    with st.expander("5. 거듭제곱과 부호"):
-        st.markdown(
-            """
-            - `-2^4`는 `-(2^4)`를 뜻하므로 `-16`입니다.
-            - `(-2)^4`는 `(-2)×(-2)×(-2)×(-2)`이므로 `16`입니다.
-            - 이 문제에서는 `-2^4`가 사용되었으므로 음수로 판단해야 합니다.
-            """
-        )
+            if weak_items:
+                has_review_item = True
 
-    with st.expander("6. 음수의 곱셈"):
-        st.markdown(
-            """
-            - 음수 × 음수 = 양수
-            - 음수 × 양수 = 음수
-            - 음수의 개수가 짝수 개이면 결과는 양수입니다.
-            - 음수의 개수가 홀수 개이면 결과는 음수입니다.
-            """
-        )
+                st.markdown(f"### {problem_name}")
+                st.caption(f"제출 점수: {total} / {max_score}점")
 
-st.divider()
+                for item_name in weak_items:
+                    review = get_review_point(item_name)
+                    item_feedback = feedback.get(item_name, "답안을 다시 확인해봅시다.")
 
-# -----------------------------
-# 전체 채점 버튼 및 결과
-# -----------------------------
+                    with st.expander(f"{item_name} - {review['title']}", expanded=True):
+                        st.markdown("**핵심 복습 포인트**")
+                        st.write(review["point"])
 
-st.subheader("🧮 전체 채점")
+                        st.markdown("**내 답안의 부족한 부분**")
+                        st.write(item_feedback)
 
-if st.button("전체 채점하기", type="primary", use_container_width=True):
-    q1_total, q1_scores, q1_feedback = grade_q1({
-        "1-(1)": st.session_state.q1_1,
-        "1-(2)": st.session_state.q1_2,
-        "1-(3)": st.session_state.q1_3,
-        "1-(4)": st.session_state.q1_4,
-    })
-
-    q2_1_combined = (
-        st.session_state.q2_1_solution
-        + " "
-        + st.session_state.q2_1_reason
-    )
-
-    q2_2_combined = (
-        st.session_state.q2_2_solution
-        + " "
-        + st.session_state.q2_2_reason
-    )
-
-    q2_total, q2_scores, q2_feedback = grade_q2(
-        q2_1_combined,
-        q2_2_combined
-    )
-
-    q3_combined = (
-        st.session_state.q3_person
-        + " "
-        + st.session_state.q3_reason
-    )
-
-    q3_total, q3_scores, q3_feedback = grade_q3(
-        q3_combined
-    )
-
-    q4_total, q4_scores, q4_feedback = grade_q4(
-        st.session_state.q4_jinho,
-        st.session_state.q4_haein,
-        st.session_state.q4_seunghye,
-        st.session_state.q4_minseop,
-        st.session_state.q4_final
-    )
-
-    total_score = q1_total + q2_total + q3_total + q4_total
-
-    all_scores = {}
-    all_feedback = {}
-
-    all_scores.update(q1_scores)
-    all_scores.update(q2_scores)
-    all_scores.update(q3_scores)
-    all_scores.update(q4_scores)
-
-    all_feedback.update(q1_feedback)
-    all_feedback.update(q2_feedback)
-    all_feedback.update(q3_feedback)
-    all_feedback.update(q4_feedback)
-
-    st.success(f"총점: {total_score} / 20점")
-
-    col_a, col_b, col_c, col_d = st.columns(4)
-
-    with col_a:
-        st.metric("1번", f"{q1_total} / 4")
-    with col_b:
-        st.metric("2번", f"{q2_total} / 4")
-    with col_c:
-        st.metric("3번", f"{q3_total} / 3")
-    with col_d:
-        st.metric("4번", f"{q4_total} / 9")
-
-    st.markdown("### 세부 채점 결과")
-
-    result_rows = []
-    for key in all_scores:
-        result_rows.append({
-            "채점 항목": key,
-            "점수": all_scores[key],
-            "피드백": all_feedback[key]
-        })
-
-    st.dataframe(result_rows, use_container_width=True, hide_index=True)
-
-    st.info(
-        "자동 채점 결과는 참고용입니다. 식을 말로 설명하거나 표현 방식이 특이한 경우에는 선생님의 최종 확인이 필요합니다."
-    )
+        if not has_review_item:
+            st.success("현재까지 제출한 문제에서 복습이 필요한 항목이 없습니다. 잘했습니다!")
