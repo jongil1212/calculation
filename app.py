@@ -1076,8 +1076,19 @@ def save_grading_result(problem_key, total, max_score, scores, feedback):
     }
 
 def reset_answers():
-    for key in default_values:
-        st.session_state[key] = ""
+    for key in list(st.session_state.keys()):
+        if (
+            key in default_values
+            or "_fraction_" in key
+            or "_power_" in key
+            or key == "grading_results"
+        ):
+            del st.session_state[key]
+
+    st.session_state.grading_results = {}
+
+    for key, value in default_values.items():
+        st.session_state[key] = value
 
 
 # -----------------------------
@@ -1133,8 +1144,7 @@ with col_reset:
 st.markdown(
     """
     <p style="font-size: 14px; color: #6B7280;">
-        문제를 선택해 답안을 작성하세요. 모든 답안을 작성한 뒤 아래의 
-        <b>전체 채점하기</b> 버튼을 누르면 세부 점수와 피드백을 확인할 수 있습니다.
+        1~4번 문제를 제출하면 마지막 탭 '복습할 내용'에서 틀린 개념을 확인할 수 있어요. 답안을 초기화하고 처음부터 다시 풀고 싶다면 다음의 버튼을 누르세요.
     </p>
     """,
     unsafe_allow_html=True
