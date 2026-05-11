@@ -617,6 +617,8 @@ default_values = {
     "q2_2_reason": "",
 
     "q3": "",
+    "q3_person": "",
+    "q3_reason": "",
     "q4_jinho": "",
     "q4_haein": "",
     "q4_seunghye": "",
@@ -918,7 +920,7 @@ if is_completed(["q1_1", "q1_2", "q1_3", "q1_4"]):
     completed_count += 1
 if is_completed(["q2_1_solution", "q2_1_reason", "q2_2_solution", "q2_2_reason"]):
     completed_count += 1
-if is_completed(["q3"]):
+if is_completed(["q3_person", "q3_reason"]):
     completed_count += 1
 if is_completed(["q4_jinho", "q4_haein", "q4_seunghye", "q4_minseop", "q4_final"]):
     completed_count += 1
@@ -1139,31 +1141,76 @@ with tab2:
 with tab3:
     st.subheader("문제 3. 거듭제곱과 부호 판단")
 
-    st.markdown("다음은 건우와 은서가 아래 식을 계산하는 방법을 각각 설명한 것입니다.")
-
-    st.latex(r"\left(-\frac{1}{6}\right)\times(-2^4)")
-
-    st.markdown("누구의 방법이 옳은지 판단하고, 그 이유를 설명하시오. [3점]")
+    # 문제 제시 상자
+    with st.container(border=True):
+        st.markdown(
+            """
+            다음은 건우와 은서가 아래 식을 계산하는 방법을 각각 설명한 것입니다.
+            """
+        )
+        st.latex(r"\left(-\frac{1}{6}\right)\times(-2^4)")
+        st.markdown("누구의 방법이 옳은지 판단하고, 그 이유를 설명하시오. [3점]")
 
     col_gunwoo, col_eunseo = st.columns(2)
 
     with col_gunwoo:
-        st.markdown("#### 건우")
-        st.markdown("음수가 2개이니까 다음과 같이 계산해야 해.")
-        st.latex(r"+\left(\frac{1}{6}\times2^4\right)")
+        with st.container(border=True):
+            st.markdown("**건우**")
+            st.markdown("음수가 2개이니까 다음과 같이 계산해야 해.")
+            st.latex(r"+\left(\frac{1}{6}\times2^4\right)")
 
     with col_eunseo:
-        st.markdown("#### 은서")
-        st.markdown("음수가 5개이니까 다음과 같이 계산해야 해.")
-        st.latex(r"-\left(\frac{1}{6}\times2^4\right)")
+        with st.container(border=True):
+            st.markdown("**은서**")
+            st.markdown("음수가 5개이니까 다음과 같이 계산해야 해.")
+            st.latex(r"-\left(\frac{1}{6}\times2^4\right)")
 
-    st.text_area(
-        "3번 답안 입력",
-        key="q3",
-        height=180,
-    )
-    show_answer_preview("q3")
-    general_math_input("q3")
+    st.markdown("")
+
+    col_q3_a, col_q3_b = st.columns(2)
+
+    with col_q3_a:
+        st.markdown("**옳은 방법을 설명한 사람**")
+        st.text_input(
+            "3번 옳은 사람",
+            key="q3_person",
+            label_visibility="collapsed"
+        )
+
+    with col_q3_b:
+        st.markdown("**이유**")
+        st.text_area(
+            "3번 이유",
+            key="q3_reason",
+            height=180,
+            label_visibility="collapsed"
+        )
+        show_answer_preview("q3_reason")
+        general_math_input("q3_reason")
+
+    st.markdown("")
+
+    # 문제 3 개별 채점 버튼
+    if st.button("제출", key="grade_q3_button", use_container_width=False):
+        q3_combined = (
+            st.session_state.q3_person
+            + " "
+            + st.session_state.q3_reason
+        )
+
+        q3_total, q3_scores, q3_feedback = grade_q3(q3_combined)
+
+        st.success(f"문제 3 점수: {q3_total} / 3점")
+
+        result_rows = []
+        for key in q3_scores:
+            result_rows.append({
+                "채점 항목": key,
+                "점수": q3_scores[key],
+                "피드백": q3_feedback[key]
+            })
+
+        st.dataframe(result_rows, use_container_width=True, hide_index=True)
     
 # -----------------------------
 # 문제 4
@@ -1336,8 +1383,14 @@ if st.button("전체 채점하기", type="primary", use_container_width=True):
         q2_2_combined
     )
 
+    q3_combined = (
+        st.session_state.q3_person
+        + " "
+        + st.session_state.q3_reason
+    )
+
     q3_total, q3_scores, q3_feedback = grade_q3(
-        st.session_state.q3
+        q3_combined
     )
 
     q4_total, q4_scores, q4_feedback = grade_q4(
