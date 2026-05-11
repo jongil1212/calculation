@@ -92,18 +92,26 @@ def grade_q1_1(answer: str):
     정답: -4, -3/5, -6/3
     3개 모두 정확하면 1점
     2개 정확하면 0.5점
+    정답 3개를 모두 썼지만 오답이 1~2개 추가된 경우 0.5점
     """
     values, raw = extract_number_values(answer)
 
     correct = [Fraction(-4, 1), Fraction(-3, 5), Fraction(-2, 1)]
     correct_count = count_correct_values(values, correct)
+    has_extra = has_wrong_extra_values(values, correct)
 
-    if correct_count == 3 and not has_wrong_extra_values(values, correct):
-        return 1.0, "음수 3개를 모두 정확히 찾았습니다."
+    base_feedback = "음수는 부호에 -가 붙은 수를 의미합니다."
+
+    if correct_count == 3 and not has_extra:
+        return 1.0, f"음수 3개 중 3개를 찾았습니다. {base_feedback}"
+    elif correct_count == 3 and has_extra:
+        return 0.5, f"음수 3개 중 3개를 찾았지만, 음수가 아닌 수가 함께 포함되어 있습니다. {base_feedback}"
     elif correct_count == 2:
-        return 0.5, "음수 3개 중 2개를 정확히 찾았습니다."
+        return 0.5, f"음수 3개 중 2개를 찾았습니다. {base_feedback}"
+    elif correct_count == 1:
+        return 0.0, f"음수 3개 중 1개를 찾았습니다. {base_feedback}"
     else:
-        return 0.0, "음수 찾기가 부족하거나 오답이 많습니다."
+        return 0.0, f"음수 3개 중 0개를 찾았습니다. {base_feedback}"
 
 
 def grade_q1_2(answer: str):
@@ -111,23 +119,32 @@ def grade_q1_2(answer: str):
     1-(2) 정수가 아닌 유리수 찾기
     정답: +1/2, -3/5, 3.6
     주의: -6/3 = -2 이므로 정수가 아닌 유리수가 아님
+    3개 모두 정확하면 1점
+    2개 정확하면 0.5점
+    정답 3개를 모두 썼지만 오답이 1~2개 추가된 경우 0.5점
     """
     values, raw = extract_number_values(answer)
 
     correct = [Fraction(1, 2), Fraction(-3, 5), Fraction(18, 5)]
     correct_count = count_correct_values(values, correct)
+    has_extra = has_wrong_extra_values(values, correct)
 
-    # -6/3 또는 -2를 포함한 경우는 대표 오개념
     has_minus_two = Fraction(-2, 1) in values
 
-    if correct_count == 3 and not has_wrong_extra_values(values, correct):
+    if correct_count == 3 and not has_extra:
         return 1.0, "정수가 아닌 유리수 3개를 모두 정확히 찾았습니다."
+    elif correct_count == 3 and has_extra:
+        if has_minus_two:
+            return 0.5, "정수가 아닌 유리수 3개를 모두 찾았지만, -6/3을 함께 포함했습니다. -6/3은 계산하면 -2이므로 정수입니다."
+        return 0.5, "정수가 아닌 유리수 3개를 모두 찾았지만, 정수가 아닌 유리수가 아닌 수가 함께 포함되어 있습니다."
     elif correct_count == 2:
         if has_minus_two:
-            return 0.5, "정답 2개를 찾았지만, -6/3을 정수가 아닌 유리수로 본 오개념이 있습니다."
-        return 0.5, "정수가 아닌 유리수 3개 중 2개를 정확히 찾았습니다."
+            return 0.5, "정수가 아닌 유리수 3개 중 2개를 찾았습니다. 다만 -6/3은 계산하면 -2이므로 정수입니다."
+        return 0.5, "정수가 아닌 유리수 3개 중 2개를 찾았습니다."
+    elif correct_count == 1:
+        return 0.0, "정수가 아닌 유리수 3개 중 1개를 찾았습니다."
     else:
-        return 0.0, "정수가 아닌 유리수 찾기가 부족하거나 오답이 많습니다."
+        return 0.0, "정수가 아닌 유리수 3개 중 0개를 찾았습니다."
 
 
 def grade_q1_3(answer: str):
