@@ -276,28 +276,58 @@ def grade_q2_1_calc(answer: str):
 def grade_q2_1_reason(answer: str):
     """
     2-(1) 이유 설명: 나눗셈을 덧셈보다 먼저 해야 함
-    용어 없이 의미가 맞으면 인정
+    나눗셈 관련 맞춤법 오류는 정답 처리하되 피드백 제공
     """
     text = normalize_korean_text(answer)
 
+    if text == "":
+        return 0.0, BLANK_FEEDBACK
+
     retry_feedback = "덧셈, 뺄셈, 곱셈, 나눗셈이 혼합된 식에서 무엇부터 계산해야 했는지 생각해봅시다."
 
+    has_division_typo = contains_any(text, [
+        r"나눗샘",
+        r"나눗셈",
+        r"나누셈",
+        r"나누샘",
+        r"나눔셈",
+        r"나눔샘"
+    ]) and "나눗셈" not in text
+
     has_division = contains_any(text, [
-        r"나눗셈", r"나누기", r"몫", r"/", r"÷"
+        r"나눗셈",
+        r"나눗샘",
+        r"나누셈",
+        r"나누샘",
+        r"나눔셈",
+        r"나눔샘",
+        r"나누기",
+        r"몫",
+        r"/",
+        r"÷"
     ])
 
     has_first = contains_any(text, [
-        r"먼저", r"우선", r"앞서", r"부터", r"먼저계산"
+        r"먼저",
+        r"우선",
+        r"앞서",
+        r"부터",
+        r"먼저계산"
     ])
 
     misconception = contains_any(text, [
-        r"왼쪽부터", r"순서대로만", r"더하기를먼저", r"덧셈을먼저"
+        r"왼쪽부터",
+        r"순서대로만",
+        r"더하기를먼저",
+        r"덧셈을먼저"
     ])
 
     if misconception and not (has_division and has_first):
         return 0.0, retry_feedback
 
     if has_division and has_first:
+        if has_division_typo:
+            return 1.0, "나눗셈을 먼저 해야 한다는 이유를 설명했습니다. ‘나눗셈’이 올바른 맞춤법입니다."
         return 1.0, "나눗셈을 먼저 해야 한다는 이유를 설명했습니다."
 
     return 0.0, retry_feedback
@@ -330,27 +360,52 @@ def grade_q2_2_calc(answer: str):
 def grade_q2_2_reason(answer: str):
     """
     2-(2) 이유 설명: 곱셈을 뺄셈보다 먼저 해야 함
+    곱셈 관련 맞춤법 오류는 정답 처리하되 피드백 제공
     """
     text = normalize_korean_text(answer)
 
+    if text == "":
+        return 0.0, BLANK_FEEDBACK
+
     retry_feedback = "덧셈, 뺄셈, 곱셈, 나눗셈이 혼합된 식에서 무엇부터 계산해야 했는지 생각해봅시다."
 
+    has_multiplication_typo = contains_any(text, [
+        r"곱샘",
+        r"곱쌤",
+        r"곱셈"
+    ]) and "곱셈" not in text
+
     has_multiplication = contains_any(text, [
-        r"곱셈", r"곱하기", r"곱", r"\*", r"×"
+        r"곱셈",
+        r"곱샘",
+        r"곱쌤",
+        r"곱하기",
+        r"곱",
+        r"\*",
+        r"×"
     ])
 
     has_first = contains_any(text, [
-        r"먼저", r"우선", r"앞서", r"부터", r"먼저계산"
+        r"먼저",
+        r"우선",
+        r"앞서",
+        r"부터",
+        r"먼저계산"
     ])
 
     misconception = contains_any(text, [
-        r"왼쪽부터", r"순서대로만", r"뺄셈을먼저", r"빼기를먼저"
+        r"왼쪽부터",
+        r"순서대로만",
+        r"뺄셈을먼저",
+        r"빼기를먼저"
     ])
 
     if misconception and not (has_multiplication and has_first):
         return 0.0, retry_feedback
 
     if has_multiplication and has_first:
+        if has_multiplication_typo:
+            return 1.0, "곱셈을 먼저 해야 한다는 이유를 설명했습니다. ‘곱셈’이 올바른 맞춤법입니다."
         return 1.0, "곱셈을 먼저 해야 한다는 이유를 설명했습니다."
 
     return 0.0, retry_feedback
