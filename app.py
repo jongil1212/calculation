@@ -588,3 +588,452 @@ def grade_q4(jinho_ans, haein_ans, seunghye_ans, minseop_ans, final_answer):
     feedback["4 간식 학생 판단"] = f
 
     return sum(scores.values()), scores, feedback
+
+# -----------------------------
+# Streamlit UI
+# -----------------------------
+
+st.set_page_config(
+    page_title="정수와 유리수 자동 채점기",
+    page_icon="📘",
+    layout="centered"
+)
+
+# -----------------------------
+# 세션 상태 초기화
+# -----------------------------
+
+default_values = {
+    "q1_1": "",
+    "q1_2": "",
+    "q1_3": "",
+    "q1_4": "",
+    "q2_1": "",
+    "q2_2": "",
+    "q3": "",
+    "q4_jinho": "",
+    "q4_haein": "",
+    "q4_seunghye": "",
+    "q4_minseop": "",
+    "q4_final": "",
+}
+
+for key, value in default_values.items():
+    if key not in st.session_state:
+        st.session_state[key] = value
+
+
+def is_completed(keys):
+    """해당 문항의 답안 입력 여부 확인"""
+    return all(st.session_state.get(k, "").strip() for k in keys)
+
+
+def reset_answers():
+    for key in default_values:
+        st.session_state[key] = ""
+
+
+# -----------------------------
+# 상단 제목 영역
+# -----------------------------
+
+st.markdown(
+    """
+    <div style="padding: 10px 0 5px 0;">
+        <h1 style="font-size: 32px; margin-bottom: 8px;">✏️ 정수와 유리수 서·논술형 답안 작성 연습</h1>
+        <p style="font-size: 16px; line-height: 1.7; color: #374151;">
+            작성한 답안을 입력한 뒤 문제의 조건에 맞게 작성하였는지 확인하세요.
+            수업 시간에 배운 정수와 유리수의 개념, 계산 순서, 부호 판단, 대소 비교를 복습할 수 있습니다.
+            참고용으로 활용하세요. 😊
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+st.divider()
+
+# -----------------------------
+# 진행률 표시
+# -----------------------------
+
+completed_count = 0
+
+if is_completed(["q1_1", "q1_2", "q1_3", "q1_4"]):
+    completed_count += 1
+if is_completed(["q2_1", "q2_2"]):
+    completed_count += 1
+if is_completed(["q3"]):
+    completed_count += 1
+if is_completed(["q4_jinho", "q4_haein", "q4_seunghye", "q4_minseop", "q4_final"]):
+    completed_count += 1
+
+total_problem_count = 4
+progress_value = completed_count / total_problem_count
+
+col_progress, col_reset = st.columns([4, 1])
+
+with col_progress:
+    st.markdown(f"✅ 완료된 문제: **{completed_count} / {total_problem_count}**")
+    st.progress(progress_value)
+
+with col_reset:
+    st.button("🔄 처음부터", on_click=reset_answers)
+
+st.markdown(
+    """
+    <p style="font-size: 14px; color: #6B7280;">
+        문제를 선택해 답안을 작성하세요. 모든 답안을 작성한 뒤 아래의 
+        <b>전체 채점하기</b> 버튼을 누르면 세부 점수와 피드백을 확인할 수 있습니다.
+    </p>
+    """,
+    unsafe_allow_html=True
+)
+
+st.divider()
+
+# -----------------------------
+# 탭 구성
+# -----------------------------
+
+tab1, tab2, tab3, tab4, tab_review = st.tabs(
+    ["문제 1", "문제 2", "문제 3", "문제 4", "📚 복습할 내용"]
+)
+
+# -----------------------------
+# 문제 1
+# -----------------------------
+
+with tab1:
+    st.subheader("문제 1. 정수와 유리수의 분류와 대소 관계")
+
+    st.info(
+        """
+        보기의 숫자들에 대해 질문에 답하시오.
+
+        보기:  -4,  0,  +1/2,  -3/5,  +2,  3.6,  10,  -6/3
+        """
+    )
+
+    st.markdown("#### (1) 음수를 모두 찾으시오. [1점]")
+    st.text_input(
+        "1-(1) 답안 입력",
+        key="q1_1",
+        placeholder="예: -4, -3/5, -6/3"
+    )
+
+    st.markdown("#### (2) 정수가 아닌 유리수를 모두 찾으시오. [1점]")
+    st.text_input(
+        "1-(2) 답안 입력",
+        key="q1_2",
+        placeholder="예: 1/2, -3/5, 3.6"
+    )
+
+    st.markdown("#### (3) 절댓값이 같은 두 수를 모두 찾으시오. [1점]")
+    st.text_input(
+        "1-(3) 답안 입력",
+        key="q1_3",
+        placeholder="예: +2, -6/3"
+    )
+
+    st.markdown("#### (4) 부등호를 이용하여 위의 수를 작은 것부터 순서대로 나열하시오. [1점]")
+    st.text_input(
+        "1-(4) 답안 입력",
+        key="q1_4",
+        placeholder="예: -4<-6/3<-3/5<0<1/2<2<3.6<10"
+    )
+
+# -----------------------------
+# 문제 2
+# -----------------------------
+
+with tab2:
+    st.subheader("문제 2. 계산 순서 오류 수정하기")
+
+    st.markdown("#### (1) 현우의 풀이를 보고, 틀린 부분이 있다면 고치고 그 이유를 쓰시오. [2점]")
+
+    st.warning(
+        """
+        현우의 풀이  
+        5 + (-6) ÷ 2 = (-1) ÷ 2 = -1/2
+        """
+    )
+
+    st.text_area(
+        "2-(1) 답안 입력",
+        key="q2_1",
+        height=160,
+        placeholder="예: 현우는 나눗셈보다 덧셈을 먼저 해서 틀렸다. 5+(-6)÷2=5+(-3)=2"
+    )
+
+    st.markdown("#### (2) 지수의 풀이를 보고, 틀린 부분이 있다면 고치고 그 이유를 쓰시오. [2점]")
+
+    st.warning(
+        """
+        지수의 풀이  
+        5×(-6)-2×(-3)=(-30)-2×(-3)=(-32)×(-3)=96
+        """
+    )
+
+    st.text_area(
+        "2-(2) 답안 입력",
+        key="q2_2",
+        height=160,
+        placeholder="예: 지수는 곱셈을 먼저 하지 않아서 틀렸다. 5×(-6)-2×(-3)=-30-(-6)=-24"
+    )
+
+# -----------------------------
+# 문제 3
+# -----------------------------
+
+with tab3:
+    st.subheader("문제 3. 거듭제곱과 부호 판단")
+
+    st.markdown(
+        """
+        다음은 건우와 은서가  
+        **(-1/6) × (-2⁴)** 을 계산하는 방법을 각각 설명한 것이다.  
+        누구의 방법이 옳은지 판단하고, 그 이유를 설명하시오. [3점]
+        """
+    )
+
+    col_gunwoo, col_eunseo = st.columns(2)
+
+    with col_gunwoo:
+        st.info(
+            """
+            **건우**
+
+            음수가 2개이니까  
+            +(1/6 × 2⁴)으로 계산해야 해.
+            """
+        )
+
+    with col_eunseo:
+        st.info(
+            """
+            **은서**
+
+            음수가 5개이니까  
+            -(1/6 × 2⁴)으로 계산해야 해.
+            """
+        )
+
+    st.text_area(
+        "3번 답안 입력",
+        key="q3",
+        height=180,
+        placeholder="예: 옳은 사람은 건우이다. -2^4=-16이므로 음수이고, 음수 2개를 곱하므로 결과의 부호는 양수이다."
+    )
+
+# -----------------------------
+# 문제 4
+# -----------------------------
+
+with tab4:
+    st.subheader("문제 4. 사다리 계산 게임")
+
+    st.markdown(
+        """
+        진호, 해인, 승혜, 민섭이는 사다리 계산 게임을 했습니다.  
+        가장 작은 수가 나오는 학생이 간식을 사기로 했습니다.  
+        각 학생의 계산 식과 최종 점수를 구하고, 간식을 사게 될 학생을 판단하시오. [9점]
+        """
+    )
+
+    st.info(
+        """
+        시작 수  
+        진호: 2 / 해인: -1 / 승혜: 1 / 민섭: -3
+
+        이동 경로에 맞게 곱셈, 나눗셈, 덧셈, 뺄셈을 적용하여 계산합니다.
+        """
+    )
+
+    st.markdown("#### 진호")
+    st.text_area(
+        "진호의 식과 최종 점수",
+        key="q4_jinho",
+        height=120,
+        placeholder="예: 2×3÷1/2-3/2=21/2"
+    )
+
+    st.markdown("#### 해인")
+    st.text_area(
+        "해인의 식과 최종 점수",
+        key="q4_haein",
+        height=120,
+        placeholder="예: (-1)÷2×(-1/4)-3/2=-11/8"
+    )
+
+    st.markdown("#### 승혜")
+    st.text_area(
+        "승혜의 식과 최종 점수",
+        key="q4_seunghye",
+        height=120,
+        placeholder="예: 1÷2×3+7=17/2"
+    )
+
+    st.markdown("#### 민섭")
+    st.text_area(
+        "민섭의 식과 최종 점수",
+        key="q4_minseop",
+        height=120,
+        placeholder="예: (-3)×(-1/4)÷1/2+7=17/2"
+    )
+
+    st.markdown("#### 간식을 사게 될 학생")
+    st.text_input(
+        "최종 판단 입력",
+        key="q4_final",
+        placeholder="예: 해인"
+    )
+
+# -----------------------------
+# 복습할 내용
+# -----------------------------
+
+with tab_review:
+    st.subheader("📚 복습할 내용")
+
+    st.markdown(
+        """
+        문제를 풀기 전에 헷갈리는 부분을 확인하거나, 채점 후 틀린 부분을 다시 복습하세요.
+        """
+    )
+
+    with st.expander("1. 음수, 정수, 유리수"):
+        st.markdown(
+            """
+            - **음수**는 0보다 작은 수입니다.
+            - **정수**는 ..., -3, -2, -1, 0, 1, 2, 3, ... 과 같은 수입니다.
+            - **유리수**는 분수로 나타낼 수 있는 수입니다.
+            - 정수가 아닌 유리수에는 분수나 유한소수 등이 포함됩니다.
+            - 예를 들어 `-6/3`은 분수 모양이지만 계산하면 `-2`이므로 정수입니다.
+            """
+        )
+
+    with st.expander("2. 절댓값"):
+        st.markdown(
+            """
+            - 절댓값은 수직선에서 0으로부터 떨어진 거리입니다.
+            - `+2`와 `-2`는 방향은 다르지만 0으로부터의 거리가 같으므로 절댓값이 같습니다.
+            - `-6/3 = -2`이므로 `+2`와 `-6/3`은 절댓값이 같습니다.
+            """
+        )
+
+    with st.expander("3. 정수와 유리수의 대소 관계"):
+        st.markdown(
+            """
+            - 음수는 0보다 작고, 양수는 0보다 큽니다.
+            - 음수끼리는 절댓값이 클수록 더 작은 수입니다.
+            - 예: `-4 < -2 < -3/5 < 0`
+            - 문제에서 부등호를 이용하라고 했으면 쉼표가 아니라 `<` 또는 `>`를 사용해야 합니다.
+            """
+        )
+
+    with st.expander("4. 사칙계산 순서"):
+        st.markdown(
+            """
+            - 괄호가 있으면 괄호 안을 먼저 계산합니다.
+            - 거듭제곱이 있으면 거듭제곱을 먼저 계산합니다.
+            - 곱셈과 나눗셈은 덧셈과 뺄셈보다 먼저 계산합니다.
+            - 같은 단계의 계산은 왼쪽에서 오른쪽으로 계산합니다.
+            """
+        )
+
+    with st.expander("5. 거듭제곱과 부호"):
+        st.markdown(
+            """
+            - `-2^4`는 `-(2^4)`를 뜻하므로 `-16`입니다.
+            - `(-2)^4`는 `(-2)×(-2)×(-2)×(-2)`이므로 `16`입니다.
+            - 이 문제에서는 `-2^4`가 사용되었으므로 음수로 판단해야 합니다.
+            """
+        )
+
+    with st.expander("6. 음수의 곱셈"):
+        st.markdown(
+            """
+            - 음수 × 음수 = 양수
+            - 음수 × 양수 = 음수
+            - 음수의 개수가 짝수 개이면 결과는 양수입니다.
+            - 음수의 개수가 홀수 개이면 결과는 음수입니다.
+            """
+        )
+
+st.divider()
+
+# -----------------------------
+# 전체 채점 버튼 및 결과
+# -----------------------------
+
+st.subheader("🧮 전체 채점")
+
+if st.button("전체 채점하기", type="primary", use_container_width=True):
+    q1_total, q1_scores, q1_feedback = grade_q1({
+        "1-(1)": st.session_state.q1_1,
+        "1-(2)": st.session_state.q1_2,
+        "1-(3)": st.session_state.q1_3,
+        "1-(4)": st.session_state.q1_4,
+    })
+
+    q2_total, q2_scores, q2_feedback = grade_q2(
+        st.session_state.q2_1,
+        st.session_state.q2_2
+    )
+
+    q3_total, q3_scores, q3_feedback = grade_q3(
+        st.session_state.q3
+    )
+
+    q4_total, q4_scores, q4_feedback = grade_q4(
+        st.session_state.q4_jinho,
+        st.session_state.q4_haein,
+        st.session_state.q4_seunghye,
+        st.session_state.q4_minseop,
+        st.session_state.q4_final
+    )
+
+    total_score = q1_total + q2_total + q3_total + q4_total
+
+    all_scores = {}
+    all_feedback = {}
+
+    all_scores.update(q1_scores)
+    all_scores.update(q2_scores)
+    all_scores.update(q3_scores)
+    all_scores.update(q4_scores)
+
+    all_feedback.update(q1_feedback)
+    all_feedback.update(q2_feedback)
+    all_feedback.update(q3_feedback)
+    all_feedback.update(q4_feedback)
+
+    st.success(f"총점: {total_score} / 20점")
+
+    col_a, col_b, col_c, col_d = st.columns(4)
+
+    with col_a:
+        st.metric("1번", f"{q1_total} / 4")
+    with col_b:
+        st.metric("2번", f"{q2_total} / 4")
+    with col_c:
+        st.metric("3번", f"{q3_total} / 3")
+    with col_d:
+        st.metric("4번", f"{q4_total} / 9")
+
+    st.markdown("### 세부 채점 결과")
+
+    result_rows = []
+    for key in all_scores:
+        result_rows.append({
+            "채점 항목": key,
+            "점수": all_scores[key],
+            "피드백": all_feedback[key]
+        })
+
+    st.dataframe(result_rows, use_container_width=True, hide_index=True)
+
+    st.info(
+        "자동 채점 결과는 참고용입니다. 식을 말로 설명하거나 표현 방식이 특이한 경우에는 선생님의 최종 확인이 필요합니다."
+    )
