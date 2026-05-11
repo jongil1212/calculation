@@ -416,13 +416,15 @@ def grade_q3_power_sign(answer: str):
 
 def grade_q3_product_sign(answer: str):
     """
-    음수 2개를 곱하므로 양수
+    음수의 개수와 곱의 부호 설명
+    '음수가 2개이기 때문'이라는 의미만 있어도 인정
     """
     text = normalize_korean_text(answer)
 
     has_two_negatives = contains_any(text, [
         r"음수2개",
         r"음수가2개",
+        r"음수두개",
         r"음수두개",
         r"음수와음수",
         r"마이너스.*마이너스",
@@ -444,30 +446,54 @@ def grade_q3_product_sign(answer: str):
         r"부호.*음수"
     ])
 
-    if wrong_direction and not has_positive:
-        return 0.0, "곱의 부호 판단 방향이 틀렸습니다."
+    if wrong_direction and not has_two_negatives:
+        return 0.0, "곱셈에서 음수의 개수와 부호 사이의 관계를 추가적으로 작성해줘야 좋은 답안이 됩니다."
 
-    if has_two_negatives and has_positive:
-        return 1.0, "음수 2개를 곱하므로 양수라는 설명이 있습니다."
+    if has_two_negatives:
+        return 1.0, "음수가 2개라는 점을 바르게 설명했습니다."
 
-    return 0.0, "음수 2개를 곱하면 양수라는 결론이 명확하지 않습니다."
+    if has_positive and not has_two_negatives:
+        return 0.0, "곱셈에서 음수의 개수와 부호 사이의 관계를 추가적으로 작성해줘야 좋은 답안이 됩니다."
+
+    return 0.0, "곱셈에서 음수의 개수와 부호 사이의 관계를 추가적으로 작성해줘야 좋은 답안이 됩니다."
 
 
 def grade_q3(answer: str):
+    """
+    문제 3 채점
+    학생에게는 피드백을 두 항목으로 표시:
+    1. 옳은 사람 판단(1점)
+    2. 이유 설명(2점)
+    """
     scores = {}
     feedback = {}
 
-    s, f = grade_q3_person(answer)
-    scores["3 옳은 사람 판단"] = s
-    feedback["3 옳은 사람 판단"] = f
+    # 1점: 옳은 사람 판단
+    person_score, person_feedback = grade_q3_person(answer)
 
-    s, f = grade_q3_power_sign(answer)
-    scores["3 -2^4 부호 판단"] = s
-    feedback["3 -2^4 부호 판단"] = f
+    # 2점: 이유 설명
+    power_score, power_feedback = grade_q3_power_sign(answer)
+    product_score, product_feedback = grade_q3_product_sign(answer)
 
-    s, f = grade_q3_product_sign(answer)
-    scores["3 곱의 부호 설명"] = s
-    feedback["3 곱의 부호 설명"] = f
+    reason_score = power_score + product_score
+
+    reason_feedback_parts = []
+
+    if power_score == 1.0:
+        reason_feedback_parts.append("-2^4의 부호를 바르게 판단했습니다.")
+    else:
+        reason_feedback_parts.append("-2^4가 어떤 부호인지 다시 생각해봅시다.")
+
+    if product_score == 1.0:
+        reason_feedback_parts.append("음수의 개수와 곱의 부호 관계를 바르게 설명했습니다.")
+    else:
+        reason_feedback_parts.append("곱셈에서 음수의 개수와 부호 사이의 관계를 추가적으로 작성해줘야 좋은 답안이 됩니다.")
+
+    scores["옳은 사람 판단(1점)"] = person_score
+    feedback["옳은 사람 판단(1점)"] = person_feedback
+
+    scores["이유 설명(2점)"] = reason_score
+    feedback["이유 설명(2점)"] = " ".join(reason_feedback_parts)
 
     return sum(scores.values()), scores, feedback
 
