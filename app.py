@@ -743,14 +743,7 @@ default_values = {
     "q1_1_select": [],
     "q1_2_select": [],
     "q1_3_select": [],
-    "q1_4_rank1": "",
-    "q1_4_rank2": "",
-    "q1_4_rank3": "",
-    "q1_4_rank4": "",
-    "q1_4_rank5": "",
-    "q1_4_rank6": "",
-    "q1_4_rank7": "",
-    "q1_4_rank8": "",
+    "q1_4_order": [],
 
     "q2_1": "",
     "q2_2": "",
@@ -1223,6 +1216,109 @@ tab1, tab2, tab3, tab4, tab_review = st.tabs(
 )
 
 # -----------------------------
+# 문제 1 보기 선택 버튼
+# -----------------------------
+
+Q1_OPTIONS = [
+    {"value": "-4", "label": "−4", "latex": r"-4"},
+    {"value": "0", "label": "0", "latex": r"0"},
+    {"value": "+1/2", "label": "+ 1/2", "latex": r"+\frac{1}{2}"},
+    {"value": "-3/5", "label": "− 3/5", "latex": r"-\frac{3}{5}"},
+    {"value": "+2", "label": "+2", "latex": r"+2"},
+    {"value": "3.6", "label": "3.6", "latex": r"3.6"},
+    {"value": "10", "label": "10", "latex": r"10"},
+    {"value": "-6/3", "label": "− 6/3", "latex": r"-\frac{6}{3}"},
+]
+
+
+def toggle_selection(key, value):
+    """보기 버튼을 누르면 선택/해제"""
+    current = st.session_state.get(key, [])
+
+    if value in current:
+        current.remove(value)
+    else:
+        current.append(value)
+
+    st.session_state[key] = current
+
+
+def append_order_selection(key, value):
+    """1-(4)에서 작은 수부터 순서대로 선택"""
+    current = st.session_state.get(key, [])
+
+    if value not in current:
+        current.append(value)
+
+    st.session_state[key] = current
+
+
+def remove_last_order_selection(key):
+    """1-(4) 순서 선택에서 마지막 선택 취소"""
+    current = st.session_state.get(key, [])
+
+    if current:
+        current.pop()
+
+    st.session_state[key] = current
+
+
+def clear_order_selection(key):
+    """1-(4) 순서 선택 전체 삭제"""
+    st.session_state[key] = []
+
+
+def number_button_grid(selection_key, mode="multi"):
+    """
+    보기 숫자 버튼 표시.
+    mode="multi": 선택/해제 방식
+    mode="order": 누른 순서대로 추가
+    """
+    cols = st.columns(8)
+
+    for i, option in enumerate(Q1_OPTIONS):
+        value = option["value"]
+        label = option["label"]
+
+        selected_values = st.session_state.get(selection_key, [])
+        is_selected = value in selected_values
+
+        with cols[i]:
+            if mode == "multi":
+                st.button(
+                    label,
+                    key=f"{selection_key}_{value}",
+                    type="primary" if is_selected else "secondary",
+                    on_click=toggle_selection,
+                    args=(selection_key, value),
+                    use_container_width=True
+                )
+            elif mode == "order":
+                st.button(
+                    label,
+                    key=f"{selection_key}_{value}",
+                    type="primary" if is_selected else "secondary",
+                    on_click=append_order_selection,
+                    args=(selection_key, value),
+                    use_container_width=True
+                )
+
+
+def latex_for_value(value):
+    """보기 값 하나를 LaTeX 문자열로 변환"""
+    for option in Q1_OPTIONS:
+        if option["value"] == value:
+            return option["latex"]
+    return value
+
+
+def show_selected_latex(values, join_symbol=", "):
+    """선택한 보기들을 LaTeX로 미리보기"""
+    if values:
+        latex_text = join_symbol.join([latex_for_value(v) for v in values])
+        st.latex(latex_text)
+
+# -----------------------------
 # 문제 1
 # -----------------------------
 
@@ -1235,84 +1331,60 @@ with tab1:
         r"-4,\quad 0,\quad +\frac{1}{2},\quad -\frac{3}{5},\quad +2,\quad 3.6,\quad 10,\quad -\frac{6}{3}"
     )
 
-    q1_options = ["-4", "0", "+1/2", "-3/5", "+2", "3.6", "10", "-6/3"]
-
     st.markdown("**(1) 음수를 모두 찾으시오. [1점]**")
-    st.multiselect(
-        "1-(1) 보기에서 고르기",
-        options=q1_options,
-        key="q1_1_select"
-    )
+    number_button_grid("q1_1_select", mode="multi")
+    show_selected_latex(st.session_state.q1_1_select)
 
     st.markdown("**(2) 정수가 아닌 유리수를 모두 찾으시오. [1점]**")
-    st.multiselect(
-        "1-(2) 보기에서 고르기",
-        options=q1_options,
-        key="q1_2_select"
-    )
+    number_button_grid("q1_2_select", mode="multi")
+    show_selected_latex(st.session_state.q1_2_select)
 
     st.markdown("**(3) 절댓값이 같은 두 수를 모두 찾으시오. [1점]**")
-    st.multiselect(
-        "1-(3) 보기에서 고르기",
-        options=q1_options,
-        key="q1_3_select"
-    )
+    number_button_grid("q1_3_select", mode="multi")
+    show_selected_latex(st.session_state.q1_3_select)
 
     st.markdown("**(4) 부등호를 이용하여 위의 수를 작은 것부터 순서대로 나열하시오. [1점]**")
-    st.caption("작은 수부터 차례대로 선택하세요.")
+    st.caption("작은 수부터 차례대로 버튼을 누르세요. 선택한 순서대로 부등호식이 만들어집니다.")
 
-    rank_options = [""] + q1_options
+    number_button_grid("q1_4_order", mode="order")
 
-    col1, col2, col3, col4 = st.columns(4)
+    col_undo, col_clear = st.columns([1, 1])
 
-    with col1:
-        st.selectbox("1번째", rank_options, key="q1_4_rank1")
-        st.selectbox("5번째", rank_options, key="q1_4_rank5")
+    with col_undo:
+        st.button(
+            "마지막 선택 취소",
+            key="q1_4_undo",
+            on_click=remove_last_order_selection,
+            args=("q1_4_order",)
+        )
 
-    with col2:
-        st.selectbox("2번째", rank_options, key="q1_4_rank2")
-        st.selectbox("6번째", rank_options, key="q1_4_rank6")
+    with col_clear:
+        st.button(
+            "전체 다시 선택",
+            key="q1_4_clear",
+            on_click=clear_order_selection,
+            args=("q1_4_order",)
+        )
 
-    with col3:
-        st.selectbox("3번째", rank_options, key="q1_4_rank3")
-        st.selectbox("7번째", rank_options, key="q1_4_rank7")
+    q1_4_order = st.session_state.q1_4_order
 
-    with col4:
-        st.selectbox("4번째", rank_options, key="q1_4_rank4")
-        st.selectbox("8번째", rank_options, key="q1_4_rank8")
-
-    selected_order = [
-        st.session_state.q1_4_rank1,
-        st.session_state.q1_4_rank2,
-        st.session_state.q1_4_rank3,
-        st.session_state.q1_4_rank4,
-        st.session_state.q1_4_rank5,
-        st.session_state.q1_4_rank6,
-        st.session_state.q1_4_rank7,
-        st.session_state.q1_4_rank8,
-    ]
-
-    if any(selected_order):
+    if q1_4_order:
         st.caption("내가 만든 부등호식")
-        st.latex(" < ".join([x for x in selected_order if x != ""]))
+        show_selected_latex(q1_4_order, join_symbol=r" < ")
 
     if st.button("제출", key="grade_q1_button", use_container_width=False):
         if (
             len(st.session_state.q1_1_select) == 0
             and len(st.session_state.q1_2_select) == 0
             and len(st.session_state.q1_3_select) == 0
-            and all(x == "" for x in selected_order)
+            and len(st.session_state.q1_4_order) == 0
         ):
             st.warning("답변을 작성하고 제출해주세요.")
         else:
             q1_1_answer = ", ".join(st.session_state.q1_1_select)
             q1_2_answer = ", ".join(st.session_state.q1_2_select)
             q1_3_answer = ", ".join(st.session_state.q1_3_select)
-
-            if all(x != "" for x in selected_order):
-                q1_4_answer = "<".join(selected_order)
-            else:
-                q1_4_answer = ""
+            q1_4_answer = "<".join(st.session_state.q1_4_order)
 
             q1_total, q1_scores, q1_feedback = grade_q1({
                 "1-(1)": q1_1_answer,
