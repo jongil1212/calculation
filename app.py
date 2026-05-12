@@ -740,10 +740,17 @@ st.set_page_config(
 # -----------------------------
 
 default_values = {
-    "q1_1": "",
-    "q1_2": "",
-    "q1_3": "",
-    "q1_4": "",
+    "q1_1_select": [],
+    "q1_2_select": [],
+    "q1_3_select": [],
+    "q1_4_rank1": "",
+    "q1_4_rank2": "",
+    "q1_4_rank3": "",
+    "q1_4_rank4": "",
+    "q1_4_rank5": "",
+    "q1_4_rank6": "",
+    "q1_4_rank7": "",
+    "q1_4_rank8": "",
 
     "q2_1": "",
     "q2_2": "",
@@ -1228,52 +1235,92 @@ with tab1:
         r"-4,\quad 0,\quad +\frac{1}{2},\quad -\frac{3}{5},\quad +2,\quad 3.6,\quad 10,\quad -\frac{6}{3}"
     )
 
+    q1_options = ["-4", "0", "+1/2", "-3/5", "+2", "3.6", "10", "-6/3"]
+
     st.markdown("**(1) 음수를 모두 찾으시오. [1점]**")
-    st.text_input(
-        "1-(1) 답안 입력",
-        key="q1_1",
-        label_visibility="collapsed"
+    st.multiselect(
+        "1-(1) 보기에서 고르기",
+        options=q1_options,
+        key="q1_1_select"
     )
-    show_answer_preview("q1_1")
-    general_math_input("q1_1")
 
     st.markdown("**(2) 정수가 아닌 유리수를 모두 찾으시오. [1점]**")
-    st.text_input(
-        "1-(2) 답안 입력",
-        key="q1_2",
-        label_visibility="collapsed"
+    st.multiselect(
+        "1-(2) 보기에서 고르기",
+        options=q1_options,
+        key="q1_2_select"
     )
-    show_answer_preview("q1_2")
-    general_math_input("q1_2")
 
     st.markdown("**(3) 절댓값이 같은 두 수를 모두 찾으시오. [1점]**")
-    st.text_input(
-        "1-(3) 답안 입력",
-        key="q1_3",
-        label_visibility="collapsed"
+    st.multiselect(
+        "1-(3) 보기에서 고르기",
+        options=q1_options,
+        key="q1_3_select"
     )
-    show_answer_preview("q1_3")
-    general_math_input("q1_3")
 
     st.markdown("**(4) 부등호를 이용하여 위의 수를 작은 것부터 순서대로 나열하시오. [1점]**")
-    st.text_input(
-        "1-(4) 답안 입력",
-        key="q1_4",
-        label_visibility="collapsed"
-    )
-    show_answer_preview("q1_4")
-    general_math_input("q1_4")
+    st.caption("작은 수부터 차례대로 선택하세요.")
+
+    rank_options = [""] + q1_options
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        st.selectbox("1번째", rank_options, key="q1_4_rank1")
+        st.selectbox("5번째", rank_options, key="q1_4_rank5")
+
+    with col2:
+        st.selectbox("2번째", rank_options, key="q1_4_rank2")
+        st.selectbox("6번째", rank_options, key="q1_4_rank6")
+
+    with col3:
+        st.selectbox("3번째", rank_options, key="q1_4_rank3")
+        st.selectbox("7번째", rank_options, key="q1_4_rank7")
+
+    with col4:
+        st.selectbox("4번째", rank_options, key="q1_4_rank4")
+        st.selectbox("8번째", rank_options, key="q1_4_rank8")
+
+    selected_order = [
+        st.session_state.q1_4_rank1,
+        st.session_state.q1_4_rank2,
+        st.session_state.q1_4_rank3,
+        st.session_state.q1_4_rank4,
+        st.session_state.q1_4_rank5,
+        st.session_state.q1_4_rank6,
+        st.session_state.q1_4_rank7,
+        st.session_state.q1_4_rank8,
+    ]
+
+    if any(selected_order):
+        st.caption("내가 만든 부등호식")
+        st.latex(" < ".join([x for x in selected_order if x != ""]))
 
     if st.button("제출", key="grade_q1_button", use_container_width=False):
-        if is_all_blank(["q1_1", "q1_2", "q1_3", "q1_4"]):
+        if (
+            len(st.session_state.q1_1_select) == 0
+            and len(st.session_state.q1_2_select) == 0
+            and len(st.session_state.q1_3_select) == 0
+            and all(x == "" for x in selected_order)
+        ):
             st.warning("답변을 작성하고 제출해주세요.")
         else:
+            q1_1_answer = ", ".join(st.session_state.q1_1_select)
+            q1_2_answer = ", ".join(st.session_state.q1_2_select)
+            q1_3_answer = ", ".join(st.session_state.q1_3_select)
+
+            if all(x != "" for x in selected_order):
+                q1_4_answer = "<".join(selected_order)
+            else:
+                q1_4_answer = ""
+
             q1_total, q1_scores, q1_feedback = grade_q1({
-                "1-(1)": st.session_state.q1_1,
-                "1-(2)": st.session_state.q1_2,
-                "1-(3)": st.session_state.q1_3,
-                "1-(4)": st.session_state.q1_4,
+                "1-(1)": q1_1_answer,
+                "1-(2)": q1_2_answer,
+                "1-(3)": q1_3_answer,
+                "1-(4)": q1_4_answer,
             })
+
             save_grading_result("문제 1", q1_total, 4, q1_scores, q1_feedback)
 
             st.success(f"문제 1 점수: {q1_total} / 4점")
